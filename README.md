@@ -20,7 +20,7 @@
 ![物业端](https://images.gitee.com/uploads/images/2020/0226/002556_6ef418dc_5220875.png "屏幕截图.png")
 
 ![住户端](https://images.gitee.com/uploads/images/2020/0226/002722_cbdd7a99_5220875.png "屏幕截图.png")
-![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003027_0cc31790_5220875.png "屏幕截图.png")
+![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003306_26c53132_5220875.png "住户通行证")
 此二维码提供给门岗。
 
 ![门岗端](https://images.gitee.com/uploads/images/2020/0226/002916_bc630c3e_5220875.png "屏幕截图.png")
