@@ -1,0 +1,90 @@
+{
+	"description": "",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true,
+		"coverView": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": false,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
+	},
+	"compileType": "miniprogram",
+	"appid": "你的小程序id",
+	"projectname": "进出二维码",
+	"miniprogramRoot": "weapp/",
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
+	"libVersion": "2.10.1",
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
+		"miniprogram": {
+			"current": -1,
+			"list": [
+				{
+					"id": 0,
+					"name": "业主入口",
+					"pathName": "pages/index",
+					"query": "",
+					"scene": 1011
+				},
+				{
+					"id": 1,
+					"name": "保安入口",
+					"pathName": "pages/securityIndex",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 2,
+					"name": "保安扫码通过",
+					"pathName": "pages/securityOperate",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "小区新增",
+					"pathName": "pages/manageAdd",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 4,
+					"name": "新增小区人员",
+					"pathName": "pages/baseinfo",
+					"query": "isRegist=true&estateId=1",
+					"scene": null
+				}
+			]
+		}
+	}
+}
