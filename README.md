@@ -23,7 +23,7 @@
 ![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003306_26c53132_5220875.png "住户通行证")
 此二维码提供给门岗。
 
-![门岗端](https://images.gitee.com/uploads/images/2020/0226/002916_bc630c3e_5220875.png "屏幕截图.png")
+![门岗端](https://images.gitee.com/uploads/images/2020/0226/003450_817d418a_5220875.png "门岗放行")
 门岗保安扫描住户二维码，并登记体温后放行或劝返。
 
 ### 联系我们
