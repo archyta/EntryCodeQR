@@ -17,15 +17,21 @@
 ### 程序截图
 免安装免部署，门口放置二维码，住户微信扫码即可。
 
-![物业端](https://images.gitee.com/uploads/images/2020/0226/002556_6ef418dc_5220875.png "屏幕截图.png")
+住户登记基本信息
+![住户端](https://images.gitee.com/uploads/images/2020/0226/003951_c594e532_5220875.png "住户端")
+住户将此二维码提供给门岗。
+![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003822_b371c7e5_5220875.png  "住户通行证")
 
-![住户端](https://images.gitee.com/uploads/images/2020/0226/002722_cbdd7a99_5220875.png "屏幕截图.png")
-![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003306_26c53132_5220875.png "住户通行证")
-此二维码提供给门岗。
 
-![门岗端](https://images.gitee.com/uploads/images/2020/0226/003450_817d418a_5220875.png "门岗放行")
 门岗保安扫描住户二维码，并登记体温后放行或劝返。
+![门岗端](https://images.gitee.com/uploads/images/2020/0226/003450_817d418a_5220875.png "门岗放行")
+
+
+物业查看统计信息,足不出户掌控全局。
+![物业端](https://images.gitee.com/uploads/images/2020/0226/003632_e402be6c_5220875.png "物业管理端")
 
 ### 联系我们
 希望籍此为抗疫尽微薄之力。
-联系方式： 刘先生 173 2307 9376
+体验环境，微信小程序 搜索 “出入福安”
+
+联系电话： 刘先生 173 2307 9376
