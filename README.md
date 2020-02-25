@@ -14,6 +14,17 @@
 
 这是小程序客户端，用wepy实现。小程序服务端稍后提交。
 
+### 程序截图
+免安装免部署，门口放置二维码，住户微信扫码即可。
+
+![物业端](https://images.gitee.com/uploads/images/2020/0226/002556_6ef418dc_5220875.png "屏幕截图.png")
+
+![住户端](https://images.gitee.com/uploads/images/2020/0226/002722_cbdd7a99_5220875.png "屏幕截图.png")
+![住户通行证](https://images.gitee.com/uploads/images/2020/0226/003027_0cc31790_5220875.png "屏幕截图.png")
+此二维码提供给门岗。
+
+![门岗端](https://images.gitee.com/uploads/images/2020/0226/002916_bc630c3e_5220875.png "屏幕截图.png")
+门岗保安扫描住户二维码，并登记体温后放行或劝返。
 
 ### 联系我们
 希望籍此为抗疫尽微薄之力。
