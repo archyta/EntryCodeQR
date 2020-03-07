@@ -1,0 +1,14 @@
+ALTER TABLE `biz_prj_info`
+ADD COLUMN `domestic_area`  varchar(100) NULL AFTER `background`,
+ADD COLUMN `domestic_invest`  float(20,2) NULL AFTER `domestic_area`,
+ADD COLUMN `overseas_area`  varchar(100) NULL AFTER `domestic_invest`,
+ADD COLUMN `overseas_invest`  float(20,2) NULL AFTER `overseas_area`;
+ALTER TABLE `biz_prj_info` 
+MODIFY COLUMN `invest_volume`  float(20,2) NULL DEFAULT NULL COMMENT '投资额' AFTER `leading_com_domain`;
+
+ALTER TABLE `biz_prj_dispatch`
+ADD COLUMN `prj_sort`  int(10) NULL DEFAULT 0 AFTER `completion`;
+
+ALTER TABLE `biz_prj_sign`
+MODIFY COLUMN `protocol_volume`  float(20,2) NULL DEFAULT NULL COMMENT '协议总投资额' AFTER `protocol_type`;
+

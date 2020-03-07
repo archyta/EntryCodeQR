@@ -3,52 +3,54 @@
   <div class="main">
     <div class="container">
       <mp-form id="form" models="{{form}}" ref="form" rules="{{rules}}">
-        <div class="main-form mgt-10">
-          <panel class="panel form-item">
-            <div style="font-weight: 600">保安个人信息</div>
-            <div @tap="goEditDetail" class="edit-wrap">
-              <image style="width: 28rpx;height: 28rpx;" src="{{'./../static/icon/edit.png'}}" />
-            </div>
-          </panel>
-          <panel :class="{'danger': err === 'name'}" class="panel form-item">
-            <div>
-              <span>
-                我的真实名字
-                <!-- <span class="required">*</span> -->
-              </span>
-            </div>
-            <input placeholder="暂无" type="text" v-model="form.name" disabled />
-          </panel>
-          <panel :class="{'danger': err === 'mobilePhone'}" class="panel form-item">
-            <div>
-              <span>
-                我的手机号码
-                <!-- <span class="required">*</span> -->
-              </span>
-            </div>
-            <input placeholder="暂无" type="text" v-model="form.mobilePhone" disabled />
-          </panel>
-          <panel :class="{'danger': err === 'idNumber'}" class="panel form-item">
-            <div>
-              <span>
-                身份证号码
-                <!-- <span class="required">*</span> -->
-              </span>
-            </div>
-            <input placeholder="暂无" type="text" v-model="form.idNumber" disabled />
-          </panel>
-          <panel :class="{'danger': err === 'housingEstateName'}" class="panel form-item">
-            <span>我的防控区域</span>
-            <div class="right-text">
-              <span v-if="estateName">{{estateName}}</span>
-            </div>
-          </panel>
-          <panel :class="{'danger': err === 'building'}" class="panel form-item last">
-            <span>所在行政区域</span>
-            <div class="right-text">
-              <span v-if="streetOfficeName">{{streetOfficeName}}</span>
-            </div>
-          </panel>
+        <div class="my-form mgt-10">
+          <div class="main-form">
+            <panel class="panel form-item">
+              <div style="font-weight: 600">保安个人信息</div>
+              <div @tap="goEditDetail" class="edit-wrap">
+                <image src="{{'./../static/icon/edit.png'}}" style="width: 28rpx;height: 28rpx;" />
+              </div>
+            </panel>
+            <panel :class="{'danger': err === 'name'}" class="panel form-item">
+              <div>
+                <span>
+                  我的真实名字
+                  <!-- <span class="required">*</span> -->
+                </span>
+              </div>
+              <input disabled placeholder="暂无" type="text" v-model="form.name" />
+            </panel>
+            <panel :class="{'danger': err === 'mobilePhone'}" class="panel form-item">
+              <div>
+                <span>
+                  我的手机号码
+                  <!-- <span class="required">*</span> -->
+                </span>
+              </div>
+              <input disabled placeholder="暂无" type="text" v-model="form.mobilePhone" />
+            </panel>
+            <!-- <panel :class="{'danger': err === 'idNumber'}" class="panel form-item">
+              <div>
+                <span>
+                  身份证号码
+                
+                </span>
+              </div>
+              <input placeholder="暂无" type="text" v-model="form.idNumber" disabled />
+            </panel>-->
+            <panel :class="{'danger': err === 'housingEstateName'}" class="panel form-item">
+              <span>我的防控区域</span>
+              <div class="right-text">
+                <span v-if="estateName">{{estateName}}</span>
+              </div>
+            </panel>
+            <panel :class="{'danger': err === 'building'}" class="panel form-item last">
+              <span>所在行政区域</span>
+              <div class="right-text">
+                <span v-if="streetOfficeName">{{streetOfficeName}}</span>
+              </div>
+            </panel>
+          </div>
         </div>
       </mp-form>
       <!-- <button @tap="commitBaseinfo" class="panel submit-btn" type="primary">
@@ -64,7 +66,7 @@ import eventHub from '../common/eventHub'
 import { mapState, mapActions } from '@wepy/x'
 import getters from '@/store/getters'
 import store from '../store'
-import { isPhoneNumber, validateIDCard } from '../utils/valid'
+import { isPhoneNumber } from '../utils/valid'
 import { getSecurityInfo } from '@/api/guards'
 import { compareVersion } from '@/utils/common.js'
 
@@ -80,8 +82,8 @@ wepy.page({
     streetOfficeName: '', // 行政区域
     form: {
       name: '',
-      mobilePhone: '',
-      idNumber: ''
+      mobilePhone: ''
+      // idNumber: ''
     }
   },
   onLoad(option) {
@@ -91,7 +93,7 @@ wepy.page({
     this.getDetails(this.store_userId)
   },
   onShow() {
-     // 基础库2.9.5才支持
+    // 基础库2.9.5才支持
     if (compareVersion('2.9.5') > -1) {
       wepy.wx.hideHomeButton()
     }
@@ -107,7 +109,7 @@ wepy.page({
       this.$navigate('/pages/securityInfoAdd?edit=1')
     },
     getDetails() {
-      getSecurityInfo(this.store_userId,this.store_housingEstateId).then(res => {
+      getSecurityInfo(this.store_userId, this.store_housingEstateId).then(res => {
         this.load = false
         if (res && res.data && res.data.data && res.data.data.guardUser) {
           this.form = res.data.data.guardUser || {}
@@ -152,6 +154,11 @@ page {
 }
 .mgt-10 {
   margin-top: 10rpx;
+}
+.my-form {
+  border-radius: 8rpx;
+  box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+  overflow: hidden;
 }
 .text-center {
   text-align: center;
@@ -220,7 +227,9 @@ page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    padding-left: 10rpx;
+    padding-right: 10rpx;
+    // box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     input {
       text-align: right;
       width: 400rpx;
@@ -274,7 +283,7 @@ page {
     display: flex;
     justify-content: center;
     justify-items: center;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     .text {
       margin-left: 10rpx;
       margin-top: 8rpx;

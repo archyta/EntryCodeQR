@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.StreetOfficeMapper">
+
+	<sql id="streetOfficeColumnsNotA">
+		id as id,
+		name as name,
+		address as address,
+		responsible as responsible,
+		responsible_mobile_phone as responsibleMobilePhone
+	</sql>
+
+</mapper>

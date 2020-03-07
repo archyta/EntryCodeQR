@@ -24,7 +24,7 @@
         </div>
         <div class="total_counter">
           <div class="conut_item">
-            <div class="counter_main-exception">{{exceptionCount}}</div>
+            <div class="counter_main-exception" @tap.stop="goTemperatureDetail">{{exceptionCount}}</div>
             <div class="desc">体温异常人数</div>
           </div>
           <div class="conut_item">
@@ -55,10 +55,11 @@
             <span>小区人员体温上报率</span>
             <span class="right-text" v-if="!hasLogin">模拟</span>
           </div>
-          <div class="time_picker is-only-two">
+          <div class="time_picker">
             <span class="desc">时间段:</span>
             <picker :disabled="!hasLogin" :range="allScope" @change="onTemperatureUploadChange" class="desc value" range-key="name" v-model="temperatureUploadScopeValue">{{temperatureUploadScope}}</picker>
           </div>
+          <button @tap.stop="goUnuploadTemperatureDetail" class="btn-detail">查看详情</button>
         </div>
         <div style="width: 100%;height: 320rpx">
           <ec-canvas canvas-id="chart4" class="ec-canvas" ec="{{ ec }}" id="chart4"></ec-canvas>
@@ -98,8 +99,11 @@
       </div>
       <!-- <div class="" > -->
       <button @tap="showContact = true" class="panel contact-us" v-if="contactPhone">
-        <mp-icon :size="16" color="#fff" icon="add"></mp-icon>
         <span class="text">联系我们</span>
+      </button>
+
+      <button open-type="share" class="panel contact-us">
+        <span class="text">分享给他人</span>
       </button>
       <!-- </div> -->
       <cover-view @tap.stop="showContact = false" class="bg_modal" v-if="showContact&&contactPhone">
@@ -502,6 +506,20 @@ wepy.page({
       ]
     }
   },
+  onShareAppMessage: function(res) {
+   let agentId = wepy.wx.getStorageSync('agentId')
+    if (agentId) {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: `/pages/main?agentId=${agentId}`
+      }
+    } else {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: '/pages/main'
+      }
+    }
+  },
   computed: {
     ...getters(),
     hasLogin() {
@@ -563,7 +581,8 @@ wepy.page({
   },
   methods: {
     loadPhoneData() {
-      getContactPhone().then(res => {
+      let agentId = wepy.wx.getStorageSync('agentId')
+      getContactPhone(this.store_housingEstateId, agentId).then(res => {
         if (res.data.status === 200 && res.data.data) {
           this.contactPhone = res.data.data.mobilePhone
           this.contactName = res.data.data.name
@@ -622,10 +641,10 @@ wepy.page({
                   return el.date
                 })
 
-                this.optionsTemperature.legend.data = [`正常＜${risk}`, `风险≥${risk}`, `异常≥${estateAbnormalTemperature}`]
-                this.optionsTemperature.series[0].name = `正常＜${risk}`
-                this.optionsTemperature.series[1].name = `风险≥${risk}`
-                this.optionsTemperature.series[2].name = `异常≥${estateAbnormalTemperature}`
+                this.optionsTemperature.legend.data = [`正常＜${this.risk}`, `风险≥${this.risk}`, `异常≥${this.abnormal}`]
+                this.optionsTemperature.series[0].name = `正常＜${this.risk}`
+                this.optionsTemperature.series[1].name = `风险≥${this.risk}`
+                this.optionsTemperature.series[2].name = `异常≥${this.abnormal}`
                 this.initTemperatureChart(this.optionsTemperature)
               } else {
                 this.initTemperatureChart(this.nullOption)
@@ -634,7 +653,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.error = res.data.message
               } else {
-                this.error = '服务器好像出问题了,请稍后再打开'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
               this.initTemperatureChart(this.nullOption)
@@ -644,7 +663,7 @@ wepy.page({
             if (err.data && err.data.message) {
               this.error = err.data.message
             } else {
-              this.error = '服务器好像出问题了,请稍后再打开'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
             this.initTemperatureChart(this.nullOption)
@@ -673,7 +692,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.error = res.data.message
               } else {
-                this.error = '服务器好像出问题了,请稍后再打开'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
               this.initTemperatureUploadChart(this.nullOption)
@@ -683,7 +702,7 @@ wepy.page({
             if (err.data && err.data.message) {
               this.error = err.data.message
             } else {
-              this.error = '服务器好像出问题了,请稍后再打开'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
             this.initTemperatureUploadChart(this.nullOption)
@@ -701,7 +720,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.error = res.data.message
               } else {
-                this.error = '服务器好像出问题了,请稍后再打开'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
             }
@@ -710,7 +729,7 @@ wepy.page({
             if (err.data && err.data.message) {
               this.error = err.data.message
             } else {
-              this.error = '服务器好像出问题了,请稍后再打开'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
           })
@@ -737,7 +756,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.error = res.data.message
               } else {
-                this.error = '服务器好像出问题了,请稍后再打开'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
               this.initOutInChart(this.nullOption)
@@ -747,7 +766,7 @@ wepy.page({
             if (err.data && err.data.message) {
               this.error = err.data.message
             } else {
-              this.error = '服务器好像出问题了,请稍后再打开'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
             this.initOutInChart(this.nullOption)
@@ -775,7 +794,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.error = res.data.message
               } else {
-                this.error = '服务器好像出问题了,请稍后再打开'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
               this.initRejectChart(this.nullOption)
@@ -785,7 +804,7 @@ wepy.page({
             if (err.data && err.data.message) {
               this.error = err.data.message
             } else {
-              this.error = '服务器好像出问题了,请稍后再打开'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
             this.initRejectChart(this.nullOption)
@@ -885,6 +904,11 @@ wepy.page({
         this.$navigate({ url: `/pages/temperatureList?danger=${this.risk}&unusual=${this.abnormal}` })
       }
     },
+    goUnuploadTemperatureDetail(e) {
+      if (this.hasLogin) {
+        this.$navigate({ url: '/pages/unReportList' })
+      }
+    },
     // 跳转到进出详情界面
     goOutInDetail(e) {},
     // 跳转到拒绝出入详情界面
@@ -894,7 +918,7 @@ wepy.page({
 </script>
 <config>
   {
-    navigationBarTitleText: '小区人员出入统计',
+    navigationBarTitleText: '出入统计',
     usingComponents: {
       'mp-icon':'module:weui-miniprogram/miniprogram_dist/icon/icon',
       'mp-toptips':'module:weui-miniprogram/miniprogram_dist/toptips/toptips',
@@ -921,7 +945,7 @@ page {
       display: flex;
       background-color: #fff;
       border-radius: 8rpx;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       .add_commuent,
       .contact {
         // margin-top: 30rpx;
@@ -932,11 +956,14 @@ page {
         display: flex;
         justify-content: center;
         justify-items: center;
-        box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+        box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
         .text {
           margin-left: 10rpx;
           margin-top: 4rpx;
         }
+      }
+      .add_commuent::after {
+        border: none;
       }
     }
     .contact-us {
@@ -1001,7 +1028,7 @@ page {
       font-size: 26rpx;
       border-radius: 8rpx;
       overflow: hidden;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     }
     .item-header,
     .total_header {

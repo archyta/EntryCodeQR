@@ -137,7 +137,7 @@ wepy.page({
 </script>
 <config>
   {
-    navigationBarTitleText: '生成扫码海报',
+    navigationBarTitleText: '业主扫码海报',
     usingComponents: {
       'mp-form':'module:weui-miniprogram/miniprogram_dist/form/form',
       'mp-cell':'module:weui-miniprogram/miniprogram_dist/cell/cell',
@@ -217,7 +217,7 @@ button:active {
       display: flex;
       justify-content: center;
       justify-items: center;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       &::after {
         border-radius: 0;
       }
@@ -236,13 +236,13 @@ button:active {
   .main-title {
     font-size: 36rpx;
     font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 0.5px solid #eee;
+    padding-bottom: 16rpx;
+    border-bottom: 1rpx solid #eee;
     transform: translateY(-26rpx);
     text-align: left;
   }
   .open-settting {
-    font-size: 13px;
+    font-size: 26rpx;
     margin-top: 55rpx;
     line-height: 100rpx;
     width: 100%;

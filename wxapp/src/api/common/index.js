@@ -1,4 +1,4 @@
-import request, { serverAddress } from '@/utils/request.js';
+import request, { serverAddress } from '@/utils/request.js'
 
 // 上传图片
 export function saveImage(appid, file) {
@@ -33,11 +33,15 @@ export function getCodeByPhone(openId, phone) {
 }
 
 // 获取商务联系电话
-export function getContactPhone() {
+export function getContactPhone(estateId, agentId) {
   return request({
     url: 'common/contact/phone',
-    method: 'get'
-  });
+    method: 'get',
+    params: {
+      estateId,
+      agentId
+    }
+  })
 }
 // 访问图片
 export function getImageUrl(name) {

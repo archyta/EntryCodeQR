@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.HousingEstateFamilyUserMapper">
+
+	<sql id="housingEstateFamilyUserColumnsNotA">
+		id as id,
+		family_id as familyId,
+		user_id as userId,
+		del_flag as delFlag,
+		crt_by as crtBy,
+		crt_time as crtTime,
+		upd_by as updBy,
+		upd_time as updTime
+	</sql>
+
+</mapper>

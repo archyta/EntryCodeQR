@@ -4,11 +4,9 @@
   <div class="main">
     <div class="container">
       <panel class="panel header">
-        <div class="search_wrapper" @tap="changeFilterType">
-          
-        </div>
+        <div @tap="changeFilterType" class="search_wrapper"></div>
         <div class="bg-left">
-          <div class="communety">{{store_housingName || '国人XXX富强小区'}}</div>
+          <div class="communety">{{'国人XXX富强小区'}}</div>
           <div class="filter-time">{{filters.startTime}}-{{filters.endTime}} {{filters.temperature}}℃</div>
         </div>
         <div class="bg-right">
@@ -18,18 +16,21 @@
       </panel>
       <div class="scroll_wrapper">
         <scroll-view @scrolltolower="loadMore" class="list" scroll-y="true">
-          <div :key="user.id" @tap="makeCall(user.phone)" v-for="(user,outerIndex) in listData">
-            <div :class="{last: outerIndex === listData.length - 1 && user.detail.length === innerIndex - 1}" :key="innerIndex" class="panel row-user" v-for="(item, innerIndex) in user.listDetail">
+          <div :key="user.id" @tap="goDetails(user.phone)" v-for="(user,outerIndex) in listData">
+            <div :class="{last: outerIndex === listData.length - 1}" class="panel row-user">
+              <div class="time-wrapper">
+                <div class="time">{{user.crtTime}}</div>
+                <!-- <div class="date">{{user.date}}</div> -->
+              </div>
               <div class="user-main flex-300">
-                <div class="name" v-if="innerIndex === 0">{{user.builds}}栋{{user.unit}}单元{{user.roomNumber}}/{{user.name}}</div>
-                <div class="phone" v-if="innerIndex === 0">{{user.phone}}</div>
+                <div class="name">{{user.builds}}栋{{user.unit}}单元{{user.roomNumber}}/{{user.name}}</div>
+                <div class="phone">{{user.phone}}</div>
               </div>
               <div class="temperature">
-                <span>{{item.temperature}}℃</span>
-              </div>
-              <div class="time-wrapper">
-                <div class="time">{{item.time}}</div>
-                <div class="date">{{item.date}}</div>
+                <span class="status in" v-if="user.status === '0'">进门</span>
+                <span class="status out" v-else-if="user.status === '1'">出门</span>
+                <span class="status reject" v-else-if="user.status === '2'">进门/劝返</span>
+                <span class="status reject" v-else-if="user.status === '3'">出门/劝返</span>
               </div>
             </div>
 
@@ -56,7 +57,7 @@
             <div class="operate-info-item">
               <span class="label">按固定时间段</span>
               <div class="input-container">
-                <picker @change="bindDateChange,'endTime'" range-key="name" :range="allScope" value="{{filters.endTime}}">
+                <picker :range="allScope" @change="bindDateChange,'endTime'" range-key="name" value="{{filters.endTime}}">
                   <view class="picker-view">{{filters.endTime}}</view>
                 </picker>
               </div>
@@ -64,7 +65,7 @@
             <div class="operate-info-item">
               <span class="label">按状态</span>
               <div class="input-container">
-                <picker @change="bindDateChange,'endTime'" range-key="name" :range="allStatus" value="{{filters.endTime}}">
+                <picker :range="allStatus" @change="bindDateChange,'endTime'" range-key="name" value="{{filters.endTime}}">
                   <view class="picker-view">{{filters.endTime}}</view>
                 </picker>
               </div>
@@ -101,9 +102,7 @@
           </div>
         </div>
       </div>
-      <div class="buttons">
-        返回顶部
-      </div>
+      <div class="buttons">返回顶部</div>
     </div>
   </div>
 </template>
@@ -117,9 +116,6 @@ import { compareVersion } from '@/utils/common.js'
 
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     userName: '',
@@ -183,19 +179,18 @@ wepy.page({
         unit: '2',
         builds: '23',
         roomNumber: '300',
-        phone: '18398851383',
-        listDetail: [
-          {
-            temperature: 32,
-            time: '8.20',
-            date: '2012/2/20'
-          },
-          {
-            temperature: 32,
-            time: '8.20',
-            date: '2012/2/20'
-          }
-        ]
+        id: 'uuid',
+        crtTime: '2012/2/20 23:20',
+        status: '0'
+      },
+      {
+        name: '老王',
+        unit: '2',
+        builds: '23',
+        roomNumber: '300',
+        id: 'uuids',
+        crtTime: '2012/2/20 23:20',
+        status: '2'
       }
     ]
   },
@@ -250,7 +245,7 @@ wepy.page({
         return null
       }
     },
-    makeCall(num) {
+    goDetails(num) {
       wx.makePhoneCall({
         phoneNumber: num,
         complete() {
@@ -364,7 +359,7 @@ page {
       padding: 20rpx;
       justify-content: space-between;
       font-size: 24rpx;
-      .search_wrapper{
+      .search_wrapper {
         width: 100%;
       }
       .communety {
@@ -387,13 +382,12 @@ page {
       align-items: center;
       // line-height: 110rpx;
       justify-content: space-between;
-      font-size: 32rpx;
+      font-size: 24rpx;
       .flex_140 {
         flex: 0 0 140rpx;
       }
       .user-main {
-        line-height: 34rpx;
-        font-weight: 600;
+        line-height: 24rpx;
         .phone {
           color: #999;
         }
@@ -486,7 +480,7 @@ page {
         }
 
         .item-right {
-          margin-left: 10px;
+          margin-left: 20rpx;
           flex-grow: 1;
         }
 

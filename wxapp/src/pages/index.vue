@@ -1,94 +1,113 @@
 <template>
   <div class="main">
     <div class="container">
-      <mp-toptips :msg="error" :delay="5000" @hide="onErrorHidden" type="error" :show="errorShow"></mp-toptips>
+      <mp-toptips :delay="5000" :msg="error" :show="errorShow" @hide="onErrorHidden" type="error"></mp-toptips>
       <panel class="panel banner" v-if="isShowInfo">
         <div class="banner-head">
           <span class="sub-title">
-            最近{{accessDays}}日
-            <span v-if="showAddress" style="margin-left:10rpx;margin-right:10rpx;">{{ showAddress }}</span>
+            {{rangeText}}
+            <span style="margin-left:10rpx;margin-right:10rpx;" v-if="showAddress">{{ showAddress }}</span>
           </span>
           <span class="limit">{{limitText}}</span>
         </div>
         <div class="out-in-count">
           <div class="left-out-in-count">
             <span>进门</span>
-            <span class="text-in-num" :class="{'text-warn':isForbiddenIn}">{{ inNum }}</span>
+            <span :class="{'text-warn':isForbiddenIn}" class="text-in-num">{{ inNum }}</span>
             <span>次</span>
           </div>
           <div class="right-out-in-count">
             <span>出门</span>
-            <span class="text-out-num" :class="{'text-warn':isForbiddenOut}">{{ outNum }}</span>
+            <span :class="{'text-warn':isForbiddenOut}" class="text-out-num">{{ outNum }}</span>
             <span>次</span>
           </div>
         </div>
       </panel>
 
-      <image class="banner-pic" v-else src="/static/image/banner.png" />
+      <image class="banner-pic" src="/static/image/banner.png" v-else />
 
       <!--toast /-->
+
       <panel class="panel main-user" v-if="isShowInfo">
-        <div class="main-user-left">
-          <div class="main-user-left-top">
-            <div class="left">
-              <div class="username-container">
-                <span class="username">{{ mainUser.name }}</span>
-                <span class="info">({{homeMainUserText}})</span>
+        <mp-slideview :buttons="mainUserSiliderButtons" :show="mainUserShow" @buttontap="slideButtonTap" @hide="mainUserMenuHide">
+          <div class="main-user-container">
+            <div class="main-user-left">
+              <div class="main-user-left-top">
+                <div class="left">
+                  <div class="username-container">
+                    <span class="username">
+                      {{ mainUser.name }}
+                      <span class="info" v-if="store_userId === famlilyInfo.mainUserId">户主</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="right">
+                  <button @tap.stop="registTemperature(mainUser)" class="btn-regist-temperature">登记体温</button>
+                </div>
+              </div>
+              <div class="main-user-left-bottom">
+                <span class="address">{{ showAddressFull }}</span>
               </div>
             </div>
-            <div class="right">
-              <button class="btn-regist-temperature" @tap.stop="registTemperature(mainUser)">登记体温</button>
+            <div class="main-user-right">
+              <button @tap.stop="showUserCode(mainUser)" class="btn" type="primary">
+                <span class="text">
+                  <span>出</span>
+                  <span>示</span>
+                  <!-- <span></span> -->
+                  <!-- <span>码</span> -->
+                </span>
+                <image class="img" src="/static/icon/forbidden.png" v-if="isForbidden" />
+                <span class="text">
+                  <spn>通</spn>
+                  <spn>行</spn>
+                  <spn>证</spn>
+                </span>
+              </button>
             </div>
           </div>
-          <div class="main-user-left-bottom">
-            <span class="address">{{ showAddressFull }}</span>
-          </div>
-        </div>
-        <div class="main-user-right">
-          <button @tap.stop="showUserCode(mainUser)" class="btn" type="primary">
-            <span class="text">
-              <span>出</span>
-              <span>示</span>
-              <!-- <span></span> -->
-              <!-- <span>码</span> -->
-            </span>
-            <image v-if="isForbidden" class="img" src="/static/icon/forbidden.png" />
-            <span class="text">
-              <spn>通</spn>
-              <spn>行</spn>
-              <spn>证</spn>
-            </span>
-          </button>
-        </div>
+        </mp-slideview>
       </panel>
       <button @tap.stop="addHomeUser" class="panel add-home-user" type="primary">
-        <mp-icon icon="add" color="#fff" :size="16"></mp-icon>
+        <mp-icon :size="16" color="#fff" icon="add"></mp-icon>
         <span class="text">添加家庭成员</span>
       </button>
       <panel class="panel sub-user" v-if="!isShowInfo || !familyMembers || familyMembers.length === 0">
-        <span class="sub-user-no-tip">暂无家庭成员</span>
+        <div class="sub-user-container">
+          <span class="sub-user-no-tip">暂无家庭成员</span>
+        </div>
       </panel>
       <panel v-else>
-        <panel class="panel sub-user" :key="index" v-for="(user, index) in familyMembers">
-          <span class="username">{{ user.name }}</span>
-          <button class="btn-regist-temperature" @tap.stop="registTemperature(user)">登记体温</button>
-          <button @tap.stop="showUserCode(user)" class="show-info-btn" type="primary">
-            <span>出示通行证</span>
-            <image v-if="isForbidden" class="img" src="/static/icon/forbidden.png" />
-          </button>
+        <panel :key="user.id" class="panel sub-user" v-for="(user, index) in familyMembers">
+          <mp-slideview :buttons="allSubSliderButtons[index]" :key="user.id" @buttontap="subUserButtonClick" @hide="mainUserMenuHide">
+            <div class="sub-user-container">
+              <div class="sub-user-name">
+                <span class="username">
+                  {{ user.name }}
+                  <span class="info" v-if="user.id ===famlilyInfo.mainUserId">户主</span>
+                </span>
+              </div>
+
+              <button @tap.stop="registTemperature(user)" class="btn-regist-temperature">登记体温</button>
+              <button @tap.stop="showUserCode(user)" class="show-info-btn" type="primary">
+                <span>出示通行证</span>
+                <image class="img" src="/static/icon/forbidden.png" v-if="isForbidden" />
+              </button>
+            </div>
+          </mp-slideview>
         </panel>
       </panel>
-      <button @tap.stop="contactProperty" v-if="propertyContacts.length>0" class="panel contact-property">
+      <button @tap.stop="contactProperty" class="panel contact-property" v-if="propertyContacts.length>0">
         <span class="text">联系小区物业</span>
       </button>
       <panel class="panel out-in-record">
-        <span class="title">最近体温记录</span>
+        <span class="title">最近三天体温记录</span>
         <div class="record-content">
           <span class="record-null-content" v-if="!isShowInfo || !temperatureRecord || temperatureRecord.length === 0">暂无记录</span>
           <div v-else>
-            <div class="record-content-item" :key="index" v-for="(item, index) in temperatureRecord">
-              <span class="date" :style="{'reject':item.status === '2'}">{{ item.crtTime }}</span>
-              <span class="username" :style="{'reject':item.status === '2'}">{{ item.userName }}</span>
+            <div :key="index" class="record-content-item" v-for="(item, index) in temperatureRecord">
+              <span :style="{'reject':item.status === '2'}" class="date">{{ item.crtTime }}</span>
+              <span :style="{'reject':item.status === '2'}" class="username">{{ item.userName }}</span>
               <span class="status out" v-if="item.status === '0' && item.temperature">{{item.temperature}}℃</span>
               <span class="status out" v-else-if="item.status === '1' && item.temperature">{{item.temperature}}℃</span>
               <span class="status reject" v-else-if="item.status === '2' && item.temperature">{{item.temperature}}℃</span>
@@ -102,7 +121,7 @@
         <div class="record-content">
           <span class="record-null-content" v-if="!isShowInfo || !records || records.length === 0">暂无记录</span>
           <div v-else>
-            <div class="record-content-item" :key="index" v-for="(item, index) in records">
+            <div :key="index" class="record-content-item" v-for="(item, index) in records">
               <span class="date">{{ item.crtTime }}</span>
               <span class="username">{{ item.userName }}</span>
               <span class="status in" v-if="item.status === '0'">进门</span>
@@ -114,16 +133,22 @@
           </div>
         </div>
       </panel>
-      <mp-dialog class="contact-dialog" :show="isShowContact" @close="onCloseContact">
+      <mp-dialog :show="isShowContact" @close="onCloseContact" class="contact-dialog">
         <div class="title" slot="title">
           <span>在您身边，为您服务</span>
         </div>
         <div class="content">
-          <div class="content-item" @tap.stop="makeCall(item.mobilePhone)" :key="index" v-for="(item,index) in propertyContacts">
+          <div :key="index" @tap.stop="makeCall(item.mobilePhone)" class="content-item" v-for="(item,index) in propertyContacts">
             <span>{{item.name}}</span>
             <span>{{item.mobilePhone}}</span>
           </div>
         </div>
+      </mp-dialog>
+      <mp-dialog :buttons="[{text: '取消'}, {text: '确定'}]" :show="showDangerTip" @buttontap="clickDangerButton" @close="onCloseContact" class="danger-dialog">
+        <div class="title" slot="title">
+          <span>删除警告</span>
+        </div>
+        <div class="content">确定删除该成员？</div>
       </mp-dialog>
     </div>
   </div>
@@ -135,18 +160,23 @@ import eventHub from '../common/eventHub'
 import store from '../store'
 import getters from '@/store/getters'
 import { getEstateInfo } from '@/api/login'
-import { getBaseInfo, getOutInRecord, getTemperatureRecord, getGuardsContact } from '@/api/owner'
+import { getBaseInfo, getOutInRecord, getTemperatureRecord, getGuardsContact, deleteUser, checkIsDeleteUser } from '@/api/owner'
 import { compareVersion } from '@/utils/common.js'
 
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   onShareAppMessage: function(res) {
-    return {
-      title: '出入福安 我为抗疫出份力！',
-      path: '/pages/main'
+    let agentId = wepy.wx.getStorageSync('agentId')
+    if (agentId) {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: `/pages/main?agentId=${agentId}`
+      }
+    } else {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: '/pages/main'
+      }
     }
   },
   hooks: {},
@@ -155,10 +185,10 @@ wepy.page({
     inNum: 0,
     error: '',
     errorShow: false,
-    homeMainUserText: '户主',
     accessType: '本人',
     accessDays: 2,
     accessCount: 3,
+    guardControlPattern: '0',
     famlilyInfo: {
       // 用户信息
       id: '',
@@ -178,36 +208,7 @@ wepy.page({
       familyId: ''
     },
     familyMembers: [],
-    temperatureRecord: [
-      {
-        id: '1',
-        crtTime: '2020/12/12 19:30',
-        userName: '张三',
-        value: 39.1,
-        status: '3'
-      },
-      {
-        id: '2',
-        crtTime: '2020/12/12 19:30',
-        userName: '张三',
-        value: 37.1,
-        status: '0'
-      },
-      {
-        id: '3',
-        crtTime: '2020/12/12 19:30',
-        userName: '张三',
-        value: 37.1,
-        status: '0'
-      },
-      {
-        id: '4',
-        crtTime: '2020/12/12 19:30',
-        userName: '张三',
-        value: 37.1,
-        status: '0'
-      }
-    ],
+    temperatureRecord: [],
     records: [
       // {
       //   id: '1',
@@ -234,7 +235,40 @@ wepy.page({
       //   phone: '18682732229'
       // }
     ],
-    isShowContact: false
+    isShowContact: false,
+    showDangerTip: false,
+    mainUserSiliderButtons: [
+      {
+        type: 'warn',
+        text: '编辑',
+        extClass: 'silider-edit-class'
+      }
+    ],
+    subOtherUserSliderButtons: [
+      {
+        type: 'warn',
+        text: '编辑',
+        extClass: 'silider-edit-class'
+      },
+      {
+        text: '删除',
+        extClass: 'silider-delete-class'
+      }
+    ],
+    subMainUserSliderButtons: [
+      {
+        type: 'warn',
+        text: '编辑',
+        extClass: 'silider-edit-class'
+      },
+      {
+        text: '删除',
+        extClass: 'silider-delete-class'
+      }
+    ],
+    allSubSliderButtons: [],
+    mainUserShow: false,
+    activeDealUser: {}
   },
   computed: {
     ...getters(),
@@ -266,6 +300,13 @@ wepy.page({
         return '禁行'
       } else {
         return `限${this.accessType}每${this.accessDays}天进出${this.accessCount}次`
+      }
+    },
+    rangeText: function() {
+      if (this.accessDays === 1) {
+        return '今日'
+      } else {
+        return `最近${this.accessDays}日`
       }
     },
     showAddressFull: function() {
@@ -301,9 +342,9 @@ wepy.page({
     isShowInfo: {
       handler: function(nl, ol) {
         if (nl) {
-          wepy.wx.setNavigationBarTitle('小区出入门防控')
+          wepy.wx.setNavigationBarTitle('小区出入防控')
         } else {
-          wepy.wx.setNavigationBarTitle('小区出入门登记')
+          wepy.wx.setNavigationBarTitle('小区出入登记')
         }
       },
       immediate: true
@@ -362,7 +403,7 @@ wepy.page({
               }
             })
             .catch(err => {
-              this.error = '服务器好像生病了,正在紧急治疗中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             })
         }
@@ -384,19 +425,30 @@ wepy.page({
       this.optionData.estateId = this.store_housingEstateId
       this.optionData.estateName = this.store_housingName
     }
+    if (this.isShowInfo) {
+      this.mainUserShow = true
+      setTimeout(() => {
+        this.mainUserShow = false
+      }, 1500)
+    }
   },
   onShow() {
     // 基础库2.9.5才支持
     if (compareVersion('2.9.5') > -1) {
       wepy.wx.hideHomeButton()
     }
-    debugger
     this.loadPageData()
   },
   methods: {
     loadPageData() {
-      debugger
       if (this.isShowInfo && this.store_role.indexOf('owner') > -1 && this.store_familyId) {
+        checkIsDeleteUser(this.store_housingEstateId, this.store_familyId, this.store_userId)
+          .then(() => {
+            console.log('userstatus ok')
+          })
+          .catch(() => {
+            console.log('user deleted')
+          })
         // 加载用户记录
         getBaseInfo(this.store_userId, this.store_familyId)
           .then(res => {
@@ -408,11 +460,6 @@ wepy.page({
                 unit: this.famlilyInfo.unit,
                 roomNumber: this.famlilyInfo.roomNumber
               })
-              if (this.store_userId === this.famlilyInfo.mainUserId) {
-                this.homeMainUserText = '户主'
-              } else {
-                this.homeMainUserText = '家庭成员'
-              }
               //装载数据
               if (this.famlilyInfo.familyMembers && this.famlilyInfo.familyMembers.length > 0) {
                 let currentuser = this.famlilyInfo.familyMembers.filter(el => el.id === this.store_userId)
@@ -427,15 +474,60 @@ wepy.page({
                   } catch {}
                 }
                 this.familyMembers = this.famlilyInfo.familyMembers.filter(el => el.id !== this.store_userId)
+                this.allSubSliderButtons = []
+                this.familyMembers.forEach(el => {
+                  if (this.famlilyInfo.mainUserId === el.id) {
+                    this.allSubSliderButtons.push([
+                      {
+                        type: 'warn',
+                        text: '编辑',
+                        extClass: 'silider-edit-forbidden-class',
+                        data: {
+                          user: el,
+                          type: 'edit'
+                        }
+                      },
+                      {
+                        text: '删除',
+                        extClass: 'silider-delete-forbidden-class',
+                        data: {
+                          user: el,
+                          type: 'delete'
+                        }
+                      }
+                    ])
+                  } else {
+                    this.allSubSliderButtons.push([
+                      {
+                        type: 'warn',
+                        text: '编辑',
+                        extClass: 'silider-edit-class',
+                        data: {
+                          user: el,
+                          type: 'edit'
+                        }
+                      },
+                      {
+                        text: '删除',
+                        extClass: 'silider-delete-class',
+                        data: {
+                          user: el,
+                          type: 'delete'
+                        }
+                      }
+                    ])
+                  }
+                })
+              } else {
+                this.allSubSliderButtons = []
               }
             } else {
-              this.error = '好像出了啥问题，紧急排查中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             }
           })
           .catch(err => {
-            debugger
-            this.error = '服务器不知道去哪了,正在紧急查找中...'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
           })
         // 加载出入信息
@@ -448,27 +540,28 @@ wepy.page({
               this.accessType = res.data.data.accessRule.accessType
               this.accessDays = Number(res.data.data.accessRule.accessDays)
               this.accessCount = Number(res.data.data.accessRule.accessCount)
+              this.guardControlPattern = res.data.data.guardControlPattern
             } else {
-              this.error = '好像出了啥问题，紧急排查中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             }
           })
           .catch(err => {
-            this.error = '服务器不知道去哪了,正在紧急查找中...'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
           })
-        getTemperatureRecord(this.store_familyId, this.store_housingEstateId, 1, 10)
+        getTemperatureRecord(this.store_familyId, this.store_housingEstateId, 1, 10000, 3)
           .then(res => {
             if (res.data.status === 200 && res.data.data) {
               this.temperatureRecord = res.data.data.rows
             } else {
               this.temperatureRecord = []
-              this.error = '好像出了啥问题，紧急排查中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             }
           })
           .catch(err => {
-            this.error = '服务器不知道去哪了,正在紧急查找中...'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
           })
         this.getContacts()
@@ -481,7 +574,7 @@ wepy.page({
             url: `/pages/baseinfo?isRegist=true&estateId=${this.optionData.estateId}&estateName=${this.optionData.estateName}`
           })
         } else {
-          this.error = '请重新从物业门卫处获取小区二维码扫码进入！'
+          this.error = '网络繁忙，请稍后再试'
           this.errorShow = true
         }
       } else {
@@ -507,17 +600,45 @@ wepy.page({
       }
     },
     showUserCode(user) {
-      let m = {
-        familyId: this.store_familyId,
-        userId: user.id,
-        name: user.name,
-        isFobidden: this.isForbidden,
-        // openId: this.store_openId,
-        expiredDate: new Date().getTime() + 300 * 1000
+      if (this.guardControlPattern === '0') {
+        let m = {
+          familyId: this.store_familyId,
+          userId: user.id,
+          name: user.name,
+          isFobidden: this.isForbidden,
+          // openId: this.store_openId,
+          expiredDate: new Date().getTime() + 300 * 1000
+        }
+        this.$navigate({
+          url: '/pages/qrcode' + this.serialize(m)
+        })
+      } else if (this.guardControlPattern === '1') {
+        if (!this.isForbidden) {
+          let m = {
+            familyId: this.store_familyId,
+            userId: user.id,
+            name: user.name,
+            // openId: this.store_openId,
+            expiredDate: new Date().getTime() + 300 * 1000,
+            outCount: this.outNum,
+            inCount: this.inNum,
+            rangeText: this.rangeText,
+            limitCount: this.accessCount // 若该值为-1 则不限制进出
+          }
+          this.$navigate({
+            url: '/pages/simpleCode' + this.serialize(m)
+          })
+        } else {
+          wx.showToast({
+            title: '出入次数已用完',
+            icon: 'none',
+            duration: 1000
+          })
+          setTimeout(() => {
+            wx.hideToast()
+          }, 2500)
+        }
       }
-      this.$navigate({
-        url: '/pages/qrcode' + this.serialize(m)
-      })
     },
     onErrorHidden() {
       this.error = ''
@@ -525,6 +646,14 @@ wepy.page({
     },
     onCloseContact() {
       this.isShowContact = false
+      this.showDangerTip = false
+    },
+    clickDangerButton(e) {
+      let index = e.$wx.detail.index
+      if (index) {
+        this.deleteUser(this.activeDealUser)
+      }
+      this.showDangerTip = false
     },
     registTemperature(user) {
       this.$navigate(`/pages/submitTempature?userName=${user.name}&userId=${user.id}`)
@@ -534,7 +663,7 @@ wepy.page({
         if (res.data.status === 200 && res.data.data) {
           this.propertyContacts = res.data.data
         } else {
-          this.error = '好像出了啥问题，紧急排查中...'
+          this.error = '网络繁忙，请稍后再试'
           this.errorShow = true
         }
       })
@@ -546,6 +675,73 @@ wepy.page({
           // self.showContact = false
         }
       })
+    },
+    // 自己的滑块编辑
+    slideButtonTap(e) {
+      // todo jump to edit page
+      let user = this.mainUser
+      let familyId = this.famlilyInfo.id
+      this.$navigate(`/pages/editBaseinfo?userId=${user.id}`)
+    },
+    mainUserMenuHide(e) {
+      this.mainUserShow = false
+    },
+    // 家庭成员滑块
+    subUserButtonClick(e) {
+      let data = e.$wx.detail.data
+      if (data.user.id != this.famlilyInfo.mainUserId) {
+        if (data.type === 'edit') {
+          // todo jump to edit page
+          let user = data.user
+          let familyId = this.famlilyInfo.id
+          this.$navigate(`/pages/editBaseinfo?userId=${user.id}`)
+        } else {
+          // todo delete
+          let user = data.user
+          let familyId = this.famlilyInfo.id
+          this.showDangerTip = true
+          this.activeDealUser = user
+        }
+      }
+    },
+    deleteUser(user) {
+      wx.showLoading({
+        title: '删除中...',
+        mask: true
+      })
+      let familyId = this.famlilyInfo.id
+      deleteUser(this.store_housingEstateId, familyId, user.id)
+        .then(res => {
+          wx.hideLoading()
+          if (res.data.status === 200) {
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success',
+              duration: 2000
+            })
+            this.loadPageData()
+          } else {
+            wx.showToast({
+              title: '删除失败',
+              icon: 'error',
+              duration: 2000
+            })
+          }
+          setTimeout(() => {
+            wx.hideToast()
+          }, 1500)
+        })
+        .catch(() => {
+          wx.hideLoading()
+          wx.showToast({
+            title: '删除失败',
+            icon: 'error',
+            duration: 2000
+          })
+          setTimeout(() => {
+            wx.hideToast()
+          }, 1500)
+        })
     }
   },
   created() {}
@@ -553,11 +749,12 @@ wepy.page({
 </script>
 <config>
   {
-    navigationBarTitleText: '小区出入门防控',
+    navigationBarTitleText: '小区出入防控',
     usingComponents: {
       'mp-icon':'module:weui-miniprogram/miniprogram_dist/icon/icon',
       'mp-toptips':'module:weui-miniprogram/miniprogram_dist/toptips/toptips',
-      'mp-dialog':'module:weui-miniprogram/miniprogram_dist/dialog/dialog'
+      'mp-dialog':'module:weui-miniprogram/miniprogram_dist/dialog/dialog',
+      'mp-slideview':'module:weui-miniprogram/miniprogram_dist/slideview/slideview'
     }
   }
 </config>
@@ -580,8 +777,34 @@ page {
       margin-right: 20rpx;
       background-color: #fff;
       border-radius: 8rpx;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
-      // border: 1px solid red;
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+      // border: 1rpx solid red;
+      .silider-edit-class {
+        .weui-slideview__btn {
+          background-color: #a5acaf;
+          font-size: 32rpx;
+          // border-top-right-radius: 8rpx;
+          // border-bottom-right-radius: 8rpx;
+        }
+      }
+      .silider-delete-class {
+        .weui-slideview__btn {
+          background-color: #fe3a3a;
+          font-size: 32rpx;
+          // border-top-right-radius: 8rpx;
+          // border-bottom-right-radius: 8rpx;
+        }
+      }
+      .silider-edit-forbidden-class,
+      .silider-delete-forbidden-class {
+        .weui-slideview__btn {
+          background-color: #a5acaf;
+          color: #d0d4dd;
+          font-size: 32rpx;
+          // border-top-right-radius: 8rpx;
+          // border-bottom-right-radius: 8rpx;
+        }
+      }
     }
 
     .banner {
@@ -618,7 +841,7 @@ page {
           font-size: 40rpx;
           color: #222222;
           border-right: 1rpx solid #d8d8d8;
-          // border:1px solid red;
+          // border:1rpx solid red;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -661,76 +884,97 @@ page {
       margin-top: 20rpx;
       height: 220rpx;
       display: flex;
-      .main-user-left {
-        flex-grow: 1;
+      overflow: hidden;
+      .weui-slideview__left {
         height: 100%;
-        padding-left: 30rpx;
-        // padding-right: 30rpx;
-        .main-user-left-top {
-          border-bottom: 1rpx solid #d8d8d8;
-          font-size: 40rpx;
-          color: #222222;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          height: 50%;
-          .left {
-            flex-grow: 1;
+      }
+      .main-user-container {
+        display: flex;
+        height: 100%;
+        .main-user-left {
+          flex-grow: 1;
+          height: 100%;
+          padding-left: 30rpx;
+          // padding-right: 30rpx;
+          .main-user-left-top {
+            border-bottom: 1rpx solid #d8d8d8;
+            font-size: 40rpx;
+            color: #222222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 50%;
+            .left {
+              flex-grow: 1;
 
-            .username-container {
-              display: inline-flex;
-              align-items: center;
-              flex-direction: column;
-              .username {
-                font-weight: bold;
-              }
-              .info {
-                // margin-left: 30rpx;
-                font-size: 24rpx;
+              .username-container {
+                // display: inline-flex;
+                // align-items: center;
+                // flex-direction: column;
+                display: flex;
+                align-items: center;
+                .username {
+                  font-weight: bold;
+                  position: relative;
+                  .info {
+                    margin-left: 10rpx;
+                    font-size: 20rpx;
+                    color: #fff;
+                    padding-left: 16rpx;
+                    padding-right: 16rpx;
+                    border-radius: 20rpx;
+                    line-height: 30rpx;
+                    background-color: #ff3e3e;
+                    position: absolute;
+                    top: 20rpx;
+                    right: -80rpx;
+                    z-index: 10;
+                  }
+                }
               }
             }
           }
-        }
-        .main-user-left-bottom {
-          height: 50%;
-          display: flex;
-          align-items: center;
-          font-size: 28rpx;
-          .address {
-          }
-        }
-      }
-      .main-user-right {
-        width: 154rpx;
-        display: border-box;
-        padding: 20rpx;
-        .btn {
-          width: 100%;
-          height: 100%;
-          background-color: #02ba61;
-
-          .text {
-            font-size: 36rpx;
-            line-height: 36rpx;
-            width: 110rpx;
+          .main-user-left-bottom {
+            height: 50%;
             display: flex;
-            justify-content: space-between;
-            justify-items: center;
-          }
-          .text + .text {
-            margin-top: 10rpx;
-          }
-          .img {
-            width: 44rpx;
-            height: 44rpx;
-            position: absolute;
+            align-items: center;
+            font-size: 28rpx;
+            .address {
+            }
           }
         }
-        .btn {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+        .main-user-right {
+          width: 154rpx;
+          display: border-box;
+          padding: 20rpx;
+          .btn {
+            width: 100%;
+            height: 100%;
+            background-color: #02ba61;
+
+            .text {
+              font-size: 36rpx;
+              line-height: 36rpx;
+              width: 110rpx;
+              display: flex;
+              justify-content: space-between;
+              justify-items: center;
+            }
+            .text + .text {
+              margin-top: 10rpx;
+            }
+            .img {
+              width: 44rpx;
+              height: 44rpx;
+              position: absolute;
+            }
+          }
+          .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
         }
       }
     }
@@ -742,7 +986,7 @@ page {
       display: flex;
       justify-content: center;
       justify-items: center;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       .text {
         margin-left: 10rpx;
         margin-top: 4rpx;
@@ -751,45 +995,73 @@ page {
     .sub-user {
       margin-top: 20rpx;
       height: 120rpx;
-      padding-left: 30rpx;
-      padding-right: 30rpx;
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      align-content: center;
-      .username {
-        color: #222222;
-        font-size: 40rpx;
-        flex-grow: 1;
-        font-weight: bold;
+      overflow: hidden;
+      .weui-slideview__left {
+        height: 100%;
       }
-      .show-info-btn {
-        background-color: #02ba61;
-        // width: 200rpx;
-        line-height: 74rpx;
-        font-size: 32rpx;
-        border-color: #a4a4a4;
-        position: relative;
+      .sub-user-container {
+        height: 100%;
+        padding-left: 30rpx;
+        padding-right: 20rpx;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
+        align-content: center;
+        .sub-user-name {
+          flex-grow: 1;
+          .username {
+            color: #222222;
+            font-size: 40rpx;
 
-        .img {
-          width: 44rpx;
-          height: 44rpx;
-          position: absolute;
+            font-weight: bold;
+            position: relative;
+            .info {
+              margin-left: 10rpx;
+              font-size: 20rpx;
+              color: #fff;
+              padding-left: 16rpx;
+              padding-right: 16rpx;
+              border-radius: 20rpx;
+              line-height: 30rpx;
+              background-color: #ff3e3e;
+              position: absolute;
+              top: 14rpx;
+              right: -80rpx;
+              z-index: 10;
+            }
+          }
         }
-      }
-      .show-info-btn::after {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-      .sub-user-no-tip {
-        font-size: 40rpx;
+
+        .show-info-btn {
+          background-color: #02ba61;
+          // width: 200rpx;
+          line-height: 74rpx;
+          font-size: 32rpx;
+          border-color: #a4a4a4;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          .img {
+            width: 44rpx;
+            height: 44rpx;
+            position: absolute;
+          }
+        }
+        .show-info-btn::after {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .sub-user-no-tip {
+          font-size: 40rpx;
+          line-height: 100%;
+        }
       }
     }
     .contact-property {
@@ -872,9 +1144,16 @@ page {
       color: #222222;
       margin-right: 20rpx;
       line-height: 72rpx;
+      flex-shrink: 0;
     }
     .btn-regist-temperature::after {
       border: 1rpx solid #eaeaea;
+    }
+    .danger-dialog {
+      .weui-dialog {
+        width: 710rpx;
+        border-radius: 12rpx;
+      }
     }
     .contact-dialog {
       .weui-dialog {
@@ -889,6 +1168,7 @@ page {
           background-color: #3a6eff;
         }
       }
+
       .weui-dialog__ft {
         height: 0;
         line-height: 0;

@@ -7,7 +7,7 @@
         <div class="banner-head">
           <span class="username">
             <span>{{mainUser.name}}</span>
-            <span class="tip">{{accessType}}近{{accessDays}}日</span>
+            <span class="tip">{{accessType}}{{rangeText}}</span>
           </span>
           <span class="address">{{iscommon_com?showAddressFull:famlilyInfo.estateName }}</span>
           <span style="color:#ff2d2d" v-if="!iscommon_com">（非本小区人员）</span>
@@ -114,9 +114,6 @@ import { setIsPass } from '@/api/guards'
 import { compareVersion } from '@/utils/common.js'
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     iscommon_com: true,
@@ -244,6 +241,13 @@ wepy.page({
       } else {
         return `限${this.accessType}每${this.accessDays}天进出${this.accessCount}次`
       }
+    },
+    rangeText: function() {
+      if (this.accessDays === 1) {
+        return '今日'
+      } else {
+        return `最近${this.accessDays}日`
+      }
     }
   },
   onLoad(options) {
@@ -278,12 +282,12 @@ wepy.page({
                 this.familyMembers = this.famlilyInfo.familyMembers.filter(el => el.id !== this.userId)
               }
             } else {
-              this.error = '好像出了啥问题，紧急排查中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             }
           })
           .catch(err => {
-            this.error = '服务器不知道去哪了,正在紧急查找中...'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
           })
         // 加载出入信息
@@ -297,12 +301,12 @@ wepy.page({
               this.accessDays = Number(res.data.data.accessRule.accessDays)
               this.accessCount = Number(res.data.data.accessRule.accessCount)
             } else {
-              this.error = '好像出了啥问题，紧急排查中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             }
           })
           .catch(err => {
-            this.error = '服务器不知道去哪了,正在紧急查找中...'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
           })
       }
@@ -389,13 +393,13 @@ wepy.page({
               eventHub.$emit('operate-success')
               wx.navigateBack()
             } else {
-              this.error = '网络好像开小差了，一会就回来！'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
               wx.hideLoading()
             }
           })
           .catch(err => {
-            this.error = '网络好像开小差了，一会就回来！'
+            this.error = '网络繁忙，请稍后再试'
             this.errorShow = true
             wx.hideLoading()
           })
@@ -490,8 +494,8 @@ page {
       margin-right: 20rpx;
       background-color: #fff;
       border-radius: 8rpx;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
-      // border: 1px solid red;
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+      // border: 1rpx solid red;
     }
 
     .banner {
@@ -559,7 +563,7 @@ page {
           font-size: 28rpx;
           color: #222222;
           border-right: 1rpx solid #d8d8d8;
-          // border:1px solid red;
+          // border:1rpx solid red;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -619,7 +623,7 @@ page {
         }
 
         .item-right {
-          margin-left: 10px;
+          margin-left: 20rpx;
           flex-grow: 1;
         }
 
@@ -676,7 +680,7 @@ page {
         color: #fff;
         // display: flex;
         background-color: #ff220d;
-        box-shadow: 0px 2px 6px 0px rgba(237, 0, 0, 0.36);
+        box-shadow: 0rpx 2rpx 6rpx 0rpx rgba(237, 0, 0, 0.36);
         border-radius: 8rpx;
         padding-top: 20rpx;
         padding-bottom: 20rpx;
@@ -703,15 +707,15 @@ page {
       }
       .btn-reject {
         background-color: #ff2d2d;
-        box-shadow: 0px 4px 7px 0px rgba(255, 45, 45, 0.3);
+        box-shadow: 0rpx 4rpx 7rpx 0rpx rgba(255, 45, 45, 0.3);
       }
       .btn-success {
         background-color: #3a6eff;
-        box-shadow: 0px 4px 7px 0px rgba(58, 110, 255, 0.3);
+        box-shadow: 0rpx 4rpx 7rpx 0rpx rgba(58, 110, 255, 0.3);
       }
       .forbidden {
         background-color: #bcbfca;
-        box-shadow: 0px 4px 7px 0px rgba(188, 191, 202, 0.3);
+        box-shadow: 0rpx 4rpx 7rpx 0rpx rgba(188, 191, 202, 0.3);
         color: rgba(255, 255, 255, 0.33);
       }
     }

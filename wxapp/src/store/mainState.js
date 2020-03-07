@@ -276,6 +276,9 @@ const user = {
               console.log('switch estate and get estate info success')
               let data = res.data.data
               console.log(data)
+              wepy.wx.setStorage('agentId', data.agentId)
+
+
               // 获取小区的信息
               commit("SET_STREET_OFFICE_NAME", data.streetOfficeName)
               wepy.wx.setStorage(streetOfficeNameStoreKey, data.streetOfficeName)
@@ -319,6 +322,22 @@ const user = {
     // 更新用户名
     setUserName({ commit }, username) {
       commit('SET_USER_NAME', username)
+    },
+    // 清除所有状态
+    clearAllState({ commit }) {
+      commit('SET_OPEN_ID', '')
+      commit('SET_USER_NAME', '')
+      commit('SET_FAMILY_ID', '')
+      commit('SET_HAS_LOGIN', false)
+      commit('SET_HOUSE_ESTATE_ID', '')
+      commit('SET_HOUSE_NAME', '')
+      commit('SET_BUILDING', '')
+      commit('SET_UNIT', '')
+      commit('SET_ROOM_NUMBER', '')
+      commit('SET_SESSION_KEY', '')
+      commit('SET_ROLE', [])
+      commit('SET_STREET_OFFICE_NAME', '')
+      commit('SET_ALL_ESTATES', [])
     }
   }
 }

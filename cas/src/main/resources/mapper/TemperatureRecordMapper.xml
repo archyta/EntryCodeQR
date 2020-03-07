@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.TemperatureRecordMapper">
+
+	<sql id="temperatureRecordColumnsNotA">
+		id as id,
+		user_id as userId,
+		temperature as temperature,
+		family_id as familyId,
+		estate_id as estateId,
+		CRT_TIME as crtTime
+	</sql>
+
+	<sql id="temperatureRecordColumnsNotA2">
+		temperature_record.id as id,
+		temperature_record.user_id as userId,
+		temperature_record.temperature as temperature,
+		temperature_record.family_id as familyId,
+		temperature_record.estate_id as estateId,
+		temperature_record.CRT_TIME as crtTime
+	</sql>
+
+	<select id="findTemperatureRecordsByfamilyId" resultType="cn.lanyue.cas.entity.TemperatureRecord">
+		SELECT
+			<include refid="temperatureRecordColumnsNotA2"/>,
+			base_user.name as userName
+		FROM
+			temperature_record
+		LEFT JOIN (SELECT id, NAME FROM base_user) base_user ON temperature_record.user_id = base_user.id
+		WHERE
+		temperature_record.family_id = #{familyId}
+		<if test="days != null">
+			and DATE_SUB(CURDATE(), INTERVAL #{days} DAY) <![CDATA[ <= ]]> DATE_FORMAT(temperature_record.crt_time,'%Y-%m-%d')
+		</if>
+		order by temperature_record.crt_time desc
+	</select>
+
+	<select id="matchingRecord" parameterType="cn.lanyue.cas.entity.TemperatureRecord" resultType="cn.lanyue.cas.entity.TemperatureRecord">
+		SELECT
+			<include refid="temperatureRecordColumnsNotA2"/>
+		FROM
+			temperature_record
+		WHERE
+			user_id = #{userId}
+			and family_id = #{familyId}
+			and estate_id = #{estateId}
+			and DATE_FORMAT(CRT_TIME,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+	</select>
+
+	<select id="estateAbnormalCount" resultType="cn.lanyue.cas.entity.TemperatureRecord">
+		select
+			<include refid="temperatureRecordColumnsNotA2"/>
+		from
+			temperature_record
+		where
+			estate_id = #{estateId}
+		<if test="abnormalVal !=null ">
+			and temperature <![CDATA[ >= ]]> #{abnormalVal}
+		</if>
+		<if test="dataScope !=null and dataScope == 'month'.toString()">
+			and MONTH(crt_time) = MONTH(now())
+		</if>
+		<if test="dataScope !=null and dataScope == 'week'.toString()">
+			and WEEKOFYEAR(crt_time) = WEEKOFYEAR(NOW())
+		</if>
+		<if test="dataScope !=null and dataScope == 'today'.toString()">
+			and DATE_FORMAT(crt_time,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+		</if>
+		<if test="dataScope !=null and dataScope == 'lastMonth'.toString()">
+			and MONTH(crt_time) = MONTH(now())-1
+		</if>
+	</select>
+
+
+	<select id="estateReportCount" resultType="cn.lanyue.cas.entity.TemperatureRecord">
+		select
+		temperature_record.user_id,
+
+		temperature_record.CRT_TIME as crtTime
+		from
+		temperature_record
+		where
+		estate_id = #{estateId}
+		<if test="dataScope !=null and dataScope == 'month'.toString()">
+			and MONTH(crt_time) = MONTH(now())
+		</if>
+		<if test="dataScope !=null and dataScope == 'week'.toString()">
+			and WEEKOFYEAR(crt_time) = WEEKOFYEAR(NOW())
+		</if>
+		<if test="dataScope !=null and dataScope == 'today'.toString()">
+			and DATE_FORMAT(crt_time,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+		</if>
+		<if test="dataScope !=null and dataScope == 'lastMonth'.toString()">
+			and MONTH(crt_time) = MONTH(now())-1
+		</if>
+		group by user_id, DATE_FORMAT(crt_time,'%Y-%m-%d')
+	</select>
+
+	<select id="estateAbnormalMax" resultType="cn.lanyue.cas.entity.TemperatureRecord">
+		select
+		temperature_record.user_id,
+		temperature_record.temperature,
+		temperature_record.CRT_TIME as crtTime
+		from
+		temperature_record
+		where
+		estate_id = #{estateId}
+		<if test="dataScope !=null and dataScope == 'month'.toString()">
+			and MONTH(crt_time) = MONTH(now())
+		</if>
+		<if test="dataScope !=null and dataScope == 'week'.toString()">
+			and WEEKOFYEAR(crt_time) = WEEKOFYEAR(NOW())
+		</if>
+		<if test="dataScope !=null and dataScope == 'today'.toString()">
+			and DATE_FORMAT(crt_time,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+		</if>
+		<if test="dataScope !=null and dataScope == 'lastMonth'.toString()">
+			and MONTH(crt_time) = MONTH(now())-1
+		</if>
+		group by user_id, DATE_FORMAT(crt_time,'%Y-%m-%d')
+	</select>
+
+
+
+	<resultMap id="estateTemperatureSearchMap" type="cn.lanyue.cas.vo.response.EstateUserVo">
+		<id column="userId" property="id"/>
+		<!--<result column="userName" property="userName"/>
+		<result column="mobilePhone" property="mobilePhone"/>
+		<result column="building" property="building"/>
+		<result column="unit" property="unit"/>
+		<result column="roomNumber" property="roomNumber"/>-->
+		<collection property="temperatureRecords" ofType="cn.lanyue.cas.entity.TemperatureRecord">
+			<id column="recordId" property="id"/>
+			<result column="temperature" property="temperature"/>
+			<result column="recordUserId" property="userId"/>
+			<result column="recordCrtTime" property="crtTime"/>
+			<result column="timeInterval" property="timeInterval"/>
+		</collection>
+	</resultMap>
+
+
+	<select id="estateTemperatureSearch" resultMap="estateTemperatureSearchMap">
+		SELECT
+		temperature_record.CRT_TIME as recordCrtTime,
+		temperature_record.time_interval as timeInterval,
+		temperature_record.temperature,
+		temperature_record.user_id as userId,
+		temperature_record.user_id as recordUserId,
+		temperature_record.id as recordId
+		FROM
+		(
+		SELECT
+		temperature_record.CRT_TIME,
+		temperature_record.time_interval,
+		temperature_record.temperature,
+		temperature_record.user_id,
+		temperature_record.id
+		FROM
+		temperature_record
+		WHERE
+		estate_id = #{estateId}
+		ORDER BY
+		temperature_record.temperature DESC
+		LIMIT 10000000
+		) temperature_record
+		<where>
+			<if test="temperature !=null ">
+				and temperature_record.temperature <![CDATA[ >= ]]> #{temperature}
+			</if>
+			<if test="startDate !=null">
+				and date_format(temperature_record.crt_time,'%Y-%m-%d') <![CDATA[ >= ]]> date_format(#{startDate},'%Y-%m-%d')
+			</if>
+			<if test="endDate !=null ">
+				and date_format(temperature_record.crt_time,'%Y-%m-%d') <![CDATA[ <= ]]> date_format(#{endDate},'%Y-%m-%d')
+			</if>
+			<if test="timeInterval !=null and timeInterval !='' ">
+				and temperature_record.time_interval = #{timeInterval}
+			</if>
+		</where>
+		GROUP BY
+		temperature_record.user_id,
+		DATE_FORMAT(
+		temperature_record.CRT_TIME,
+		'%Y-%m-%d'
+		),
+		temperature_record.time_interval
+		order by temperature_record.crt_time desc,temperature_record.temperature desc
+	</select>
+
+</mapper>

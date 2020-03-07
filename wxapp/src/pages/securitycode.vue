@@ -41,9 +41,6 @@ import { compareVersion } from '@/utils/common.js'
 import { getERCode } from '@/api/guards'
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     userName: '',
@@ -64,7 +61,7 @@ wepy.page({
     let accountInfo = wx.getAccountInfoSync()
     this.url = getERCode(accountInfo.miniProgram.appId, 'estate', this.store_housingEstateId)
     // estateId=1&estateName=测试小区
-    // wxbarcode.qrcode('qrcode', 'https://anquan.myngo.cn/pages/index?estateId=1&estateName=测试小区', 552, 552);
+    // wxbarcode.qrcode('qrcode', 'https://myserver.com/pages/index?estateId=1&estateName=测试小区', 552, 552);
   },
   created() {
     this.famlilyInfo.estateName = this.store_housingName

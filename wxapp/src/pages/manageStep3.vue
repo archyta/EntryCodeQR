@@ -21,14 +21,14 @@
           </div>
 
           <div class="estateName">{{store_housingName}}</div>
-          <div class="desc-wrap" style="font-size: 24rpx;">
+          <div class="desc-wrap">
             <div class="desc" style="color: #fff;line-height: 50rpx;">
               <div class="row">
-                <span class="bg-blue" style="line-height: 24rpx">1.</span>
+                <span class="bg-blue" style="line-height: 24rpx">1. </span>
                 <span>保安扫此码注册保安端账号。</span>
               </div>
               <div class="row">
-                <span class="bg-blue" style="line-height: 24rpx">2.</span>
+                <span class="bg-blue" style="line-height: 24rpx">2. </span>
                 <span>
                   成功注册后，用此工具扫住户通行证，
                   并查验身份，确定是放行还是劝返。
@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <div class="desc-wrap" style="max-width: 256px;margin-left: 75rpx;">
+      <div class="out-desc-wrap">
         <div class="desc">
           <div class="row">
             <span class="bg-blue">1</span>
@@ -196,7 +196,7 @@ wepy.page({
 </script>
 <config>
   {
-    navigationBarTitleText: '生成保安端海报',
+    navigationBarTitleText: '保安扫码海报',
     usingComponents: {
       'mp-form':'module:weui-miniprogram/miniprogram_dist/form/form',
       'mp-cell':'module:weui-miniprogram/miniprogram_dist/cell/cell',
@@ -234,7 +234,7 @@ button:active {
 .container {
   display: flex;
   flex-direction: column;
-    margin-bottom: 110rpx;
+  margin-bottom: 110rpx;
   // margin: 20rpx;
   .halfModel {
     width: 100%;
@@ -247,9 +247,10 @@ button:active {
     margin-top: 70rpx;
     display: flex;
     justify-content: center;
+    margin-top: 24rpx;
     .image {
-      width: 300rpx;
-      height: 300rpx;
+      width: 240rpx;
+      height: 240rpx;
       border-radius: 50%;
       overflow: hidden;
       position: relative;
@@ -262,13 +263,13 @@ button:active {
         align-items: center;
         justify-content: center;
         display: flex;
-        width: 240rpx;
-        height: 240rpx;
-        left: 30rpx;
-        top: 30rpx;
+        width: 220rpx;
+        height: 220rpx;
+        // left: 30rpx;
+        // top: 30rpx;
         image {
-          width: 240rpx;
-          height: 240rpx;
+          width: 220rpx;
+          height: 220rpx;
         }
       }
     }
@@ -296,21 +297,21 @@ button:active {
         image {
           width: 20rpx;
           height: 20rpx;
-          margin-left: 20rpx;
+          margin-left: 10rpx;
         }
       }
     }
   }
   .desc-wrap {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     line-height: 60rpx;
-    font-size: 32rpx;
+    font-size: 24rpx;
     margin-top: 50rpx;
     color: #222222;
     .desc {
       .row {
-        max-width: 500rpx;
+        max-width: 450rpx;
         display: flex;
       }
       .bg-blue {
@@ -324,7 +325,7 @@ button:active {
         vertical-align: middle;
         line-height: 40rpx;
         text-align: center;
-        margin-right: 20rpx;
+        // margin-right: 20rpx;
         margin-top: 10rpx;
       }
     }
@@ -347,9 +348,9 @@ button:active {
     line-height: 100rpx;
     // margin-top: 30rpx;
     background: #fff;
-        position: fixed;
+    position: fixed;
     width: 750rpx;
-    left:0;
+    left: 0;
     bottom: 0;
     .deal-btn {
       height: 100rpx;
@@ -359,7 +360,8 @@ button:active {
       display: flex;
       justify-content: center;
       justify-items: center;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      border-radius: 0;
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       .text {
         margin-left: 10rpx;
         margin-top: 8rpx;
@@ -393,19 +395,49 @@ button:active {
       }
     }
   }
+  .out-desc-wrap {
+    font-size: 32rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #222222;
+    .desc {
+      margin-top: 60rpx;
+      .row {
+        max-width: 572rpx;
+        display: flex;
+      }
+      .row + .row {
+        margin-top: 20rpx;
+      }
+      .bg-blue {
+        background: #3a6eff;
+        color: #fff;
+        border-radius: 50%;
+        display: inline-block;
+        justify-content: flex-start;
+        height: 40rpx;
+        flex: 0 0 40rpx;
+        vertical-align: middle;
+        line-height: 40rpx;
+        text-align: center;
+        margin-right: 20rpx;
+      }
+    }
+  }
 }
 .weui-dialog {
   border-radius: 8rpx !important;
   .main-title {
     font-size: 36rpx;
     font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 0.5px solid #eee;
+    padding-bottom: 16rpx;
+    border-bottom: 1rpx solid #eee;
     transform: translateY(-26rpx);
     text-align: left;
   }
   .open-settting {
-    font-size: 13px;
+    font-size: 26rpx;
     margin-top: 55rpx;
     line-height: 100rpx;
     width: 100%;

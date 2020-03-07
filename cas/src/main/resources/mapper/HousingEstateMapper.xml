@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.HousingEstateMapper">
+
+	<sql id="housingEstateColumnsNotA">
+		id as id,
+		name as name,
+		simple_name as simpleName,
+		address as address,
+		responsible as responsible,
+		responsible_mobile_phone as responsibleMobilePhone,
+		untitled as untitled
+	</sql>
+
+
+	<select id="findEstatePeopleNum" resultType="integer">
+	SELECT
+		COUNT(distinct housing_estate_family_user.user_id)
+	FROM
+		housing_estate
+	LEFT JOIN housing_estate_family ON housing_estate.id = housing_estate_family.estate_id
+	LEFT JOIN housing_estate_family_user ON housing_estate_family.id = housing_estate_family_user.family_id
+	where
+	housing_estate.id = #{estateId}
+	</select>
+
+
+	<select id="findEstatePeoples" resultType="cn.lanyue.cas.vo.response.EstateUserVo">
+	SELECT
+		base_user.id,
+		base_user.name as userName,
+		base_user.mobile_phone as mobilePhone,
+		housing_estate_family.building,
+		housing_estate_family.unit,
+		housing_estate_family.room_number as roomNumber
+	FROM
+		housing_estate
+	LEFT JOIN housing_estate_family ON housing_estate.id = housing_estate_family.estate_id
+	LEFT JOIN housing_estate_family_user ON housing_estate_family.id = housing_estate_family_user.family_id
+	left join base_user on housing_estate_family_user.user_id = base_user.id
+	where
+	housing_estate.id = #{estateId}
+	</select>
+
+</mapper>

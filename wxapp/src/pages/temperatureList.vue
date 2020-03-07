@@ -18,24 +18,18 @@
           共计：
           <span class="highlight">{{total == -1? 0: total}}</span>人
         </div>
+        <button class="export" @tap.stop="exportData">导出数据</button>
       </panel>
       <div class="scroll_wrapper">
         <scroll-view @scrolltolower="loadMore" class="list" scroll-y="true">
           <div :key="user.id" @tap="makeCall(user.mobilePhone)" v-for="(user,outerIndex) in listData">
-            <div
-              :class="{last:outerIndex===listData.length-1&&user.temperatureRecords.length-1===innerIndex}"
-              :key="innerIndex"
-              class="panel row-user"
-              v-for="(item, innerIndex) in user.temperatureRecords"
-            >
+            <div :class="{last:outerIndex===listData.length-1&&user.temperatureRecords.length-1===innerIndex}" :key="innerIndex" class="panel row-user" v-for="(item, innerIndex) in user.temperatureRecords">
               <div class="user-main flex-300">
                 <div class="name" v-if="innerIndex === 0">{{user.building}}栋{{user.unit}}单元{{user.roomNumber}}/{{user.userName}}</div>
                 <div class="phone" v-if="innerIndex === 0">{{user.showPhone}}</div>
               </div>
               <div class="temperature">
-                <span
-                  :class="{normal: item.temperature< temps.dangerTempare, danger: item.temperature>= temps.dangerTempare && item.temperature < temps.unusual, unusual: item.temperature>= temps.unusual}"
-                >{{item.temperature}}℃</span>
+                <span :class="{normal: item.temperature< temps.dangerTempare, danger: item.temperature>= temps.dangerTempare && item.temperature < temps.unusual, unusual: item.temperature>= temps.unusual}">{{item.temperature}}℃</span>
               </div>
               <div class="time-wrapper">
                 <div class="time">{{item.time}}</div>
@@ -57,13 +51,7 @@
             <div class="operate-info-item">
               <span class="label" style="width:350rpx">体温： 大于等于</span>
               <div class="input-container">
-                <input
-                  class="input"
-                  placeholder="请输入体温"
-                  placeholder-style="font-size:32rpx;font-family: '-apple-system,BlinkMacSystemFont,SF UI Text,Helvetica Neue,PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Arial,sans-serif';"
-                  type="digit"
-                  v-model="copyFilter.temperature"
-                />
+                <input class="input" placeholder="请输入体温" placeholder-style="font-size:32rpx;font-family: '-apple-system,BlinkMacSystemFont,SF UI Text,Helvetica Neue,PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Arial,sans-serif';" type="digit" v-model="copyFilter.temperature" />
                 <span class="temperature">
                   <span>℃</span>
                 </span>
@@ -100,14 +88,11 @@
 import wepy from '@wepy/core'
 import getters from '@/store/getters'
 import store from '../store'
-import { getTempatureList } from '@/api/manage'
+import { getTempatureList, DownloadAndOpenExceptionTemperature } from '@/api/manage'
 import { formate, compareVersion } from '@/utils/common.js'
 
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     userName: '',
@@ -229,10 +214,11 @@ wepy.page({
     sureFilter() {
       if (this.copyFilter.temperature) {
         let value = this.copyFilter.temperature
-        if (value >= 50 || value < 25) {
-          return this.openError('温度范围异常，请输入25-50之前的温度值')
+        if (value > 45 || value < 30) {
+          return this.openError('温度范围异常，请输入30-45之前的温度值')
         }
-        if (value && !/^\d+(\.\d+)?$/.test(value)) {
+        let m = /^\d+(\.\d+)?$/.test(value)
+        if (value && !m) {
           return this.openError('温度只能填入数字')
         }
       }
@@ -264,8 +250,23 @@ wepy.page({
           }
         })
         .catch(e => {
-          this.openError('服务器不知道去哪了,正在紧急查找中...')
+          this.openError('网络繁忙，请稍后再试')
           this.isLoading = false
+        })
+    },
+    exportData() {
+      wx.showLoading({
+        title: '下载中',
+        mask: true
+      })
+      DownloadAndOpenExceptionTemperature(this.filters)
+        .then(res => {
+          wx.hideLoading()
+        })
+        .catch(err => {
+          wx.hideLoading()
+          this.error = '网络繁忙,请稍后再试'
+          this.errorShow = true
         })
     },
     dealTime(list = []) {
@@ -369,13 +370,30 @@ page {
       padding: 20rpx;
       justify-content: space-between;
       font-size: 24rpx;
+      align-items: center;
+      border-top-left-radius: 8rpx;
+      border-top-right-radius: 8rpx;
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+
       .communety {
         font-size: 32rpx;
         font-weight: 600;
       }
       .bg-right {
-        text-align: right;
+        text-align: center;
         line-height: 84rpx;
+        flex-grow: 1;
+      }
+      .export {
+        font-size: 24rpx;
+        color: #222;
+        height: 60rpx;
+        width: 130rpx;
+        background-color: #fff;
+        padding: 16rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     }
     &.row-user {
@@ -387,13 +405,9 @@ page {
       font-size: 24rpx;
       line-height: 30rpx;
       align-items: center;
-      // line-height: 110rpx;
       justify-content: space-between;
-      font-size: 32rpx;
-      .flex_140 {
-        flex: 0 0 140rpx;
-      }
       .user-main {
+        flex-grow: 1;
         line-height: 44rpx;
         font-weight: 600;
         .phone {
@@ -402,6 +416,7 @@ page {
         }
       }
       .temperature {
+        width: 80rpx;
         .normal {
           color: #3a6eff;
         }
@@ -413,14 +428,20 @@ page {
         }
       }
       .time-wrapper {
+        width: 180rpx;
         text-align: right;
         line-height: 38rpx;
       }
     }
 
     &:not(.last) {
-      border-radius: 0;
+      // border-radius: 0;
       border-bottom: 1rpx solid #f0f0f0;
+    }
+    &.last {
+      // border-radius: 0;
+      border-bottom-left-radius: 8rpx;
+      border-bottom-left-radius: 8rpx;
     }
   }
   .no_guard {
@@ -430,6 +451,9 @@ page {
     color: #666;
     text-align: center;
     background: #fff;
+    border-bottom-left-radius: 8rpx;
+    border-bottom-right-radius: 8rpx;
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
   }
   .bg-modal {
     position: fixed;
@@ -441,6 +465,7 @@ page {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
 
     .filter {
       width: 650rpx;
@@ -484,7 +509,7 @@ page {
         }
 
         .item-right {
-          margin-left: 10px;
+          margin-left: 20rpx;
           flex-grow: 1;
         }
 
@@ -580,7 +605,7 @@ page {
       }
       &::after {
         content: ' ';
-        border: 1rpx solid #eee;
+        border-right: 1rpx solid #eee;
         width: 1rpx;
         height: 60rpx;
         position: absolute;

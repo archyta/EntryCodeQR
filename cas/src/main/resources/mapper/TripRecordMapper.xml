@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.TripRecordMapper">
+
+	<sql id="tripRecordColumnsNotA">
+		record.id as id,
+		record.status as status,
+		record.crt_time as crtTime,
+		record.user_id as userId,
+		record.direction as direction,
+		record.family_id as familyId,
+		record.estate_id as estateId
+	</sql>
+
+	<select id="findRecordByFamily" resultType="cn.lanyue.cas.entity.TripRecord">
+		SELECT
+			<include refid="tripRecordColumnsNotA"/>,
+			user.name as userName
+		FROM
+			trip_record record
+		LEFT JOIN base_user USER ON record.user_id = USER .id
+		<where>
+			<if test="days != null">
+				DATE_SUB(CURDATE(), INTERVAL #{days} DAY) <![CDATA[ <= ]]> DATE_FORMAT(record.crt_time,'%Y-%m-%d')
+			</if>
+			<if test="familyId != null and familyId !='' ">
+				and record.family_id = #{familyId}
+			</if>
+			<if test="estateId != null and estateId !='' ">
+				and record.estate_id = #{estateId}
+			</if>
+		</where>
+		order by record.crt_time desc
+	</select>
+
+	<select id="findRecordByRule" resultType="cn.lanyue.cas.entity.TripRecord">
+		SELECT
+		<include refid="tripRecordColumnsNotA"/>,
+		user.name as userName
+		FROM
+		trip_record record
+		left join housing_estate_family on record.family_id = housing_estate_family.id
+		LEFT JOIN (select id, name from base_user) USER ON record.user_id = USER .id
+		where
+			record.family_id = #{familyId}
+			<if test="accessDays != null">
+				and DATE_SUB(CURDATE(), INTERVAL #{accessDays} DAY) <![CDATA[ <= ]]> DATE_FORMAT(record.crt_time,'%Y-%m-%d')
+			</if>
+			<choose>
+				<when test="accessType != null and accessType =='oneself'.toString()">
+					AND record.user_id = #{userId}
+				</when>
+				<when test="accessType != null and accessType =='householder'.toString()">
+					and housing_estate_family.main_user_id IS NOT NULL
+				</when>
+			</choose>
+		order by record.crt_time desc
+	</select>
+
+
+	<select id="findRecordForProperty" resultType="cn.lanyue.cas.entity.TripRecord">
+		select
+			<include refid="tripRecordColumnsNotA"/>
+		from trip_record record
+		where
+		record.estate_id = #{estateId}
+		<if test="dataScope !=null and dataScope == 'month'.toString()">
+			and MONTH(record.crt_time) = MONTH(now())
+		</if>
+		<if test="dataScope !=null and dataScope == 'week'.toString()">
+			and WEEKOFYEAR(record.crt_time) = WEEKOFYEAR(NOW())
+		</if>
+		<if test="dataScope !=null and dataScope == 'today'.toString()">
+			and DATE_FORMAT(record.crt_time,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+		</if>
+		<if test="dataScope !=null and dataScope == 'lastMonth'.toString()">
+			and MONTH(record.crt_time) = MONTH(now())-1
+		</if>
+
+	</select>
+
+	<select id="highSearch" resultType="cn.lanyue.cas.entity.TripRecord" parameterType="map">
+		SELECT
+		<include refid="tripRecordColumnsNotA"/>,
+		estate.name as estateName,
+		user.name as userName
+		FROM
+			housing_estate estate
+		LEFT JOIN trip_record record ON estate.id = record.estate_id
+		LEFT JOIN base_user user ON record.user_id = user.id
+		where
+		estate.id = #{estateId}
+		<if test="(startDate == null or startDate =='') and (endDate == null or endDate=='') and dataScope != null and dataScope != '' ">
+			<if test="dataScope !=null and dataScope == 'month'.toString()">
+				and MONTH(record.crt_time) = MONTH(now())
+			</if>
+			<if test="dataScope !=null and dataScope == 'week'.toString()">
+				and WEEKOFYEAR(record.crt_time) = WEEKOFYEAR(NOW())
+			</if>
+			<if test="dataScope !=null and dataScope == 'today'.toString()">
+				and DATE_FORMAT(record.crt_time,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+			</if>
+			<if test="dataScope !=null and dataScope == 'lastMonth'.toString()">
+				and MONTH(record.crt_time) = MONTH(now())-1
+			</if>
+		</if>
+
+		<if test="userName !=null and userName !=''">
+			and user.name like CONCAT('%',#{userName},'%')
+		</if>
+		<if test="status !=null and status !=''">
+			and record.status = #{status}
+		</if>
+		<if test="startDate !=null and startDate !=''">
+			and DATE_FORMAT(record.crt_time,'%Y/%m/%d') <![CDATA[>=]]> #{startDate}
+		</if>
+		<if test="endDate !=null and endDate !=''">
+			and DATE_FORMAT(record.crt_time,'%Y/%m/%d') <![CDATA[<=]]> #{endDate}
+		</if>
+	</select>
+
+</mapper>

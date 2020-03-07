@@ -29,7 +29,7 @@ module.exports = {
   },
   plugins: [
     DefinePlugin({
-      URL: prod ? "'https://myserver/cas/v4/'" : urlEnv.API_ROOT
+      URL: prod ? "'https://myserver/cas/v7/'" : urlEnv.API_ROOT
     })
   ],
   appConfig: {

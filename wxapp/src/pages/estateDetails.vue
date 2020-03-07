@@ -3,7 +3,7 @@
 <template>
   <div class="main">
     <div class="container">
-      <panel class="panel">
+      <panel class="panel begin">
         <div class="bg-header">{{(estateInfo.streetOfficeName || '') + store_housingName}}</div>
       </panel>
       <div class="panel row-item">
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="panel row-item last">
-        <span>人员名单及审批</span>
+        <span>保安登记名单</span>
         <div @tap="goGuardList" class="right-con">
           <span>
             {{estateInfo.guardNum|| 0}}个
@@ -39,16 +39,30 @@
           </span>
         </div>
       </div>
-      <div class="panel row-item mgt-20">
+      <div class="panel row-item begin mgt-20">
+        <span style="font-weight: 600">小区基本信息</span>
+        <div class="right-con">
+          <div @tap="goEditDetail" class="edit-wrap">
+            <image src="{{'./../static/icon/edit.png'}}" style="width: 28rpx;height: 28rpx;" />
+          </div>
+        </div>
+      </div>
+      <div class="panel row-item">
         <span>
           进出门限额
           <!-- <span class="required">*</span> -->
         </span>
         <div class="right-con" style="width: 400rpx;">
-          <picker @change="bindMultiPickerChange" mode="multiSelector" range="{{multiArray}}" range-key="label" value="{{multiIndex}}">
-            <span class="picker">限{{multiArray[0][multiIndex[0]].label}} {{multiArray[1][multiIndex[1]].label}} {{multiArray[2][multiIndex[2]].label}}</span>
-            <image src="{{'./../static/icon/arror-right.png'}}" style="width: 30rpx;height: 30rpx;margin-left:2rpx;" />
-          </picker>
+          <!-- <picker @change="bindMultiPickerChange" mode="multiSelector" range="{{multiArray}}" range-key="label" value="{{multiIndex}}"> -->
+          <span class="picker">限{{multiArray[0][multiIndex[0]].label}} {{multiArray[1][multiIndex[1]].label}} {{multiArray[2][multiIndex[2]].label}}</span>
+          <!-- <image src="{{'./../static/icon/arror-right.png'}}" style="width: 30rpx;height: 30rpx;margin-left:2rpx;" />
+          </picker>-->
+        </div>
+      </div>
+      <div class="panel row-item">
+        <span>门岗放行模式</span>
+        <div class="right-con" style="width: 400rpx;">
+          <span class="picker">{{estateInfo.guardControlPattern==='0'?'保安扫码确认后放行':'住户扫码登记后放行'}}</span>
         </div>
       </div>
       <panel class="panel row-item last">
@@ -79,13 +93,7 @@
         </div>
       </div>-->
 
-      <div class="panel row-item mgt-20">
-        <span style="font-weight: 600">小区基本信息</span>
-        <!-- <div class="right-con">
-          <span>查看</span>
-        </div>-->
-      </div>
-      <div class="panel row-item">
+      <div class="panel row-item begin" style="margin-top:10rpx;">
         <span>
           小区名称
           <!-- <span class="required">*</span> -->
@@ -121,7 +129,7 @@
           <span>{{getShowAddress}}</span>
         </div>
       </div>
-      <div class="panel row-item last">
+      <div class="panel row-item">
         <span>
           小区门头照
           <!-- <span class="required">*</span> -->
@@ -130,8 +138,9 @@
           <span>查看</span>
         </div>-->
       </div>
-      <div class="addition-img">
+      <div class="panel addition-img last">
         <div :style="{backgroundImage: 'url(' + getImageFullPath + ')'}" class="image" v-if="estateInfo.headPhotoPath"></div>
+        <div class="no-img" v-else>暂无照片</div>
         <!-- <image :src="getImageFullPath" v-if="estateInfo.headPhotoPath" /> -->
       </div>
     </div>
@@ -223,10 +232,15 @@ wepy.page({
       this.multiIndex = [...data.$wx.detail.value]
       this.updateLimit()
     },
+    goEditDetail() {
+      this.$navigate({
+        url: `/pages/editEstateInfo?id=${this.estateInfo.id}`
+      })
+    },
     findPickerIndex(data) {
       /* accessCount: "4"
-accessDays: "3"
-accessType: "family" */
+      accessDays: "3"
+      accessType: "family" */
       let index1 = this.multiArray[0].findIndex(el => el.value == data.accessType)
       let index2 = this.multiArray[1].findIndex(el => el.value == data.accessDays)
       let index3 = this.multiArray[2].findIndex(el => el.value == data.accessCount)
@@ -240,7 +254,7 @@ accessType: "family" */
       setEntressLimit({ estateId, ...this.getSubmit })
         .then(response => {
           if (response.data.status !== 200) {
-            this.openError('服务器异常，请稍后重试...')
+            this.openError('网络繁忙，请稍后再试')
           } else {
             wx.showToast({
               title: '更新成功',
@@ -250,7 +264,7 @@ accessType: "family" */
           }
         })
         .catch(err => {
-          this.openError('服务器异常，请稍后重试...')
+          this.openError('网络繁忙，请稍后再试')
         })
     },
     getDetails(id) {
@@ -259,7 +273,7 @@ accessType: "family" */
           this.estateInfo = res.data.data
           this.getEntressLimit(res.data.data.id)
         } else {
-          this.openError('服务器不知道去哪了,正在紧急查找中...')
+          this.openError('网络繁忙，请稍后再试')
         }
       })
     },
@@ -300,17 +314,25 @@ page {
 }
 .addition-img {
   height: 400rpx;
-  border: 1rpx solid #eee;
-  border-radius: 8rpx;
+  // border: 1rpx solid #d8f8f8;
   background-color: #fff;
   background-position: center;
   background-size: cover;
+
   .image {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     width: 100%;
     height: 100%;
+  }
+  .no-img {
+    line-height: 270rpx;
+    color: #999;
+    font-size: 38rpx;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 .container {
@@ -329,7 +351,6 @@ page {
       background: #3a6eff;
       height: 112rpx;
       line-height: 112rpx;
-      border-radius: 8rpx 8rpx 0 0;
       color: #fff;
       text-align: center;
       width: 100%;
@@ -340,11 +361,19 @@ page {
       align-items: center;
       justify-content: space-between;
       padding: 0 20rpx;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       .right-con {
         text-align: right;
         width: 200rpx;
-        // height: 40rpx;
+        .edit-wrap {
+          padding: 0 10rpx;
+          border: 1rpx solid #d8d8d8;
+          display: inline-block;
+          border-radius: 6rpx;
+          &:active {
+            background: #d8d8d8;
+          }
+        }
       }
       input {
         text-align: right;
@@ -356,17 +385,22 @@ page {
         justify-content: flex-start;
         flex-grow: 1;
         // height: 100%;
-
       }
 
       &:not(.last) {
-        border-radius: 0;
-        border-bottom: 1rpx solid #ccc;
+        border-bottom: 1rpx solid #d8d8d8;
       }
+
       &.danger {
         border-bottom: 1rpx solid #f00;
       }
     }
+  }
+  .begin {
+    border-radius: 8rpx 8rpx 0 0;
+  }
+  .last {
+    border-radius: 0 0 8rpx 8rpx;
   }
 }
 </style>

@@ -5,31 +5,56 @@
       <mp-toptips :delay="5000" :msg="error" :show="errorShow" @hide="onErrorHidden" type="error"></mp-toptips>
 
       <mp-form id="form" models="{{form}}" ref="form" rules="{{rules}}">
-        <div class="main-form mgt-10">
-          <panel class="panel form-item" style="justify-content: center">
-            <span style="font-weight: 600;">{{userName}}</span>
-          </panel>
-          <panel :class="{'danger': err === 'temperature'}" class="panel form-item">
-            <div>
-              <span>
-                当前体温
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入体温" type="digit" v-model="form.temperature" />
-          </panel>
-          <panel class="panel form-item last">
-            <span>登记时间</span>
-            <div class="right-text">
-              <span>{{timenow}}</span>
-            </div>
-          </panel>
+        <div class="my-form mgt-10">
+          <div class="main-form">
+            <panel class="panel form-item" style="justify-content: center">
+              <span style="font-weight: 600;">{{userName}}</span>
+            </panel>
+            <panel :class="{'danger': err === 'temperature'}" class="panel form-item">
+              <div>
+                <span>
+                  当前体温
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入体温" type="digit" v-model="form.temperature" />
+            </panel>
+            <panel class="panel form-item last">
+              <span>登记时间</span>
+              <div class="right-text">
+                <span>{{timenow}}</span>
+              </div>
+            </panel>
+          </div>
         </div>
       </mp-form>
       <button @tap="commitBaseinfo" class="panel submit-btn" type="primary">
         <span class="text">保存体温记录</span>
       </button>
     </div>
+    <mp-dialog class="contact-dialog" :mask-closable="false" :show="isShowConfirm" @close="onCloseConfirm">
+      <div class="title" slot="title">
+        <span>请再次确认，据实填报体温</span>
+        <mp-icon @tap.stop="onCloseConfirm" :size="28" color="#222" icon="close"></mp-icon>
+      </div>
+      <div class="content">
+        <div class="content-item">
+          <span class="name">{{userName}}</span>
+          <span class="date">{{timenow}}</span>
+          <span class="name">{{form.temperature}}℃</span>
+        </div>
+        <div class="operate">
+          <button class="cancle" @tap.stop="onCloseConfirm">
+            <span>取</span>
+            <span style="margin-left:20rpx;">消</span>
+          </button>
+          <button class="confirm" @tap.stop="onConfirm">
+            <span>确</span>
+            <span style="margin-left:20rpx;">定</span>
+          </button>
+        </div>
+      </div>
+    </mp-dialog>
   </div>
 </template>
 
@@ -50,6 +75,7 @@ wepy.page({
     typeF: false,
     error: '',
     errorShow: false,
+    isShowConfirm: false,
     err: '',
     showOneButtonDialog: false,
     buttons: [],
@@ -68,10 +94,11 @@ wepy.page({
           { required: true, message: '请填写温度' },
           {
             validator: function(rule, value, param, modeels) {
-              if (value >= 50 || value < 25) {
-                return '温度范围异常，请输入25-50之前的温度值'
+              if (value > 45 || value < 30) {
+                return '温度范围异常，请输入30-45之前的温度值'
               }
-              if (value && !(/^\d+(\.\d+)?$/.test(value))) {
+              let m = /^\d+(\.\d+)?$/.test(value)
+              if (value && !m) {
                 return '温度只能填入数字'
               }
             }
@@ -106,32 +133,7 @@ wepy.page({
           this.error = errors[0].message
           this.errorShow = true
         } else {
-          this.err = ''
-          wx.showLoading({
-            title: '加载中',
-            mask: true
-          })
-          submitTempature(this.form)
-            .then(res => {
-              wx.hideLoading()
-              if (res.data.status === 200) {
-                wx.navigateBack()
-              } else {
-                if (res.data && res.data.message) {
-                  this.openError(res.data.message)
-                } else {
-                  this.openError('好像服务处理点问题哟,请稍后重试！')
-                }
-              }
-            })
-            .catch(err => {
-              wx.hideLoading()
-              if (err.data && err.data.message) {
-                this.openError(err.data.message)
-              } else {
-                this.openError('好像服务处理点问题哟,请稍后重试！')
-              }
-            })
+          this.isShowConfirm = true
         }
       })
     },
@@ -166,6 +168,38 @@ wepy.page({
     onErrorHidden() {
       this.error = ''
       this.errorShow = false
+    },
+    onCloseConfirm() {
+      this.isShowConfirm = false
+    },
+    onConfirm() {
+      this.err = ''
+      wx.showLoading({
+        title: '加载中',
+        mask: true
+      })
+      submitTempature(this.form)
+        .then(res => {
+          wx.hideLoading()
+          if (res.data.status === 200) {
+            this.onCloseConfirm()
+            wx.navigateBack()
+          } else {
+            if (res.data && res.data.message) {
+              this.openError(res.data.message)
+            } else {
+              this.openError('好像服务处理点问题哟,请稍后重试！')
+            }
+          }
+        })
+        .catch(err => {
+          wx.hideLoading()
+          if (err.data && err.data.message) {
+            this.openError(err.data.message)
+          } else {
+            this.openError('好像服务处理点问题哟,请稍后重试！')
+          }
+        })
     }
   }
 })
@@ -176,10 +210,13 @@ wepy.page({
     usingComponents: {
       'mp-form':'module:weui-miniprogram/miniprogram_dist/form/form',
       'mp-cell':'module:weui-miniprogram/miniprogram_dist/cell/cell',
-      'mp-toptips':'module:weui-miniprogram/miniprogram_dist/toptips/toptips'
+      'mp-toptips':'module:weui-miniprogram/miniprogram_dist/toptips/toptips',
+      'mp-dialog':'module:weui-miniprogram/miniprogram_dist/dialog/dialog',
+      'mp-icon':'module:weui-miniprogram/miniprogram_dist/icon/icon',
     }
   }
 </config>
+
 <style lang="less" scoped>
 page {
   height: 100%;
@@ -196,6 +233,11 @@ page {
 .mgt-10 {
   margin-top: 10rpx;
 }
+.my-form {
+  border-radius: 8rpx;
+  box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+  overflow: hidden;
+}
 .text-center {
   text-align: center;
 }
@@ -207,6 +249,7 @@ page {
   vertical-align: middle;
   margin-left: 5rpx;
 }
+
 .container {
   display: flex;
   flex-direction: column;
@@ -230,7 +273,9 @@ page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    padding-left: 10rpx;
+    padding-right: 10rpx;
+    // box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     input {
       text-align: right;
       width: 350rpx;
@@ -274,7 +319,7 @@ page {
     display: flex;
     justify-content: center;
     justify-items: center;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     .text {
       margin-left: 10rpx;
       margin-top: 8rpx;
@@ -289,6 +334,106 @@ page {
   padding: 26rpx 24rpx !important;
   .weui-btn {
     background: #3a6eff;
+  }
+}
+.contact-dialog {
+  .weui-dialog {
+    width: 710rpx;
+    border-radius: 12rpx;
+    .weui-dialog__hd {
+      height: 104rpx;
+      color: #222;
+      padding-left: 30rpx;
+      padding-right: 30rpx;
+      padding-top: 0;
+      padding-bottom: 0;
+      .weui-dialog__title {
+        height: 100%;
+        border-bottom: 1rpx solid #d8d8d8;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+  .weui-dialog__ft {
+    height: 0;
+    line-height: 0;
+    min-height: 0;
+  }
+  .weui-dialog__bd {
+    line-height: 0;
+    min-height: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    .content {
+      margin-left: 30rpx;
+      margin-right: 30rpx;
+      .content-item {
+        height: 200rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 32rpx;
+        padding-left: 10rpx;
+        padding-right: 10rpx;
+        .name {
+          color: #3a6eff;
+          font-size: 36rpx;
+        }
+        .date {
+          color: #666666;
+          font-size: 28rpx;
+        }
+      }
+      .operate {
+        height: 120rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20rpx;
+        .cancle {
+          width: 300rpx;
+          color: #fff;
+          font-size: 32rpx;
+          background-color: #7d8289;
+          border: none;
+          height: 96rpx;
+          display: flex;
+          margin-left: 0;
+          margin-right: 0;
+          align-items: center;
+          justify-content: center;
+        }
+        .cancle::after {
+          border: none;
+        }
+        .confirm {
+          width: 300rpx;
+          background-color: #3a6eff;
+          color: #fff;
+          font-size: 32rpx;
+          border: none;
+          margin-left: 0;
+          margin-right: 0;
+          height: 96rpx;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .confirm::after {
+          border: none;
+        }
+      }
+    }
+  }
+  .title {
+    font-size: 32rpx;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: space-between;
   }
 }
 </style>

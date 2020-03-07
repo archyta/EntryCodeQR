@@ -83,13 +83,18 @@ import { getEstateInfo } from '@/api/login'
 import { compareVersion } from '@/utils/common.js'
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   onShareAppMessage: function(res) {
-    return {
-      title: '出入福安 我为抗疫出份力！',
-      path: '/pages/main'
+    let agentId = wepy.wx.getStorageSync('agentId')
+    if (agentId) {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: `/pages/main?agentId=${agentId}`
+      }
+    } else {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: '/pages/main'
+      }
     }
   },
   hooks: {},
@@ -206,7 +211,7 @@ wepy.page({
               }
             })
             .catch(err => {
-              this.error = '服务器好像生病了,正在紧急治疗中...'
+              this.error = '网络繁忙，请稍后再试'
               this.errorShow = true
             })
         }
@@ -274,7 +279,7 @@ wepy.page({
             if (res.data && res.data.message) {
               this.error = res.data.message
             } else {
-              this.error = '服务器好像生病了，紧急治疗中...'
+              this.error = '网络繁忙，请稍后再试'
             }
           }
         })
@@ -412,12 +417,12 @@ page {
         flex: 1;
         &.qr-btn-1 {
           background: #02c165;
-          box-shadow: 0px 4px 7px 0px rgba(2, 199, 104, 0.3);
+          box-shadow: 0rpx 4rpx 7rpx 0rpx rgba(2, 199, 104, 0.3);
         }
         &.qr-btn-2 {
           background: #3a6eff;
           margin-left: 40rpx;
-          box-shadow: 0px 4px 7px 0px rgba(58, 110, 255, 0.3);
+          box-shadow: 0rpx 4rpx 7rpx 0rpx rgba(58, 110, 255, 0.3);
         }
       }
     }
@@ -447,8 +452,8 @@ page {
     margin-right: 20rpx;
     background-color: #fff;
     border-radius: 8rpx;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
-    // border: 1px solid red;
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+    // border: 1rpx solid red;
   }
 
   .banner {
@@ -499,7 +504,7 @@ page {
     display: flex;
     justify-content: center;
     justify-items: center;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     .text {
       margin-left: 10rpx;
       margin-top: 4rpx;

@@ -56,9 +56,6 @@ import { compareVersion } from '@/utils/common.js'
 
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     userName: '',
@@ -198,7 +195,7 @@ page {
         background: #ff220d;
         width: 500rpx;
         color: #fff;
-        box-shadow: 0px 2px 6px 0px rgba(237, 0, 0, 0.36);
+        box-shadow: 0rpx 2rpx 6rpx 0rpx rgba(237, 0, 0, 0.36);
         text-align: center;
         padding-top: 20rpx;
         padding-bottom: 20rpx;

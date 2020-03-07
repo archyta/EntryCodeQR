@@ -1,4 +1,4 @@
-import request, { serverAddress } from '@/utils/request.js'
+import request, { serverAddress, downloadFileAndOpen } from '@/utils/request.js'
 
 
 // 体温异常人数统计图
@@ -55,6 +55,16 @@ export function getEstate(estateId) {
   return request({
     url: `property/baseinfo/${estateId}`,
     method: 'get'
+  })
+}
+
+// 更新小区的信息
+
+export function updateEstate(data) {
+  return request({
+    url: 'property/baseinfo',
+    method: 'put',
+    data
   })
 }
 
@@ -136,6 +146,13 @@ export function getTempatureList(params) {
     params
   })
 }
+export function getUnReportedTem(params) {
+  return request({
+    url: 'property/noreport/temperature/search',
+    method: 'get',
+    params
+  })
+}
 
 // 获取海报地址
 // type guard,owner
@@ -171,5 +188,27 @@ export function deleteMember(estateId, userId) {
     data: {
       estateId, userId
     }
+  })
+}
+
+// 异常体温附件下载及打开
+export function DownloadAndOpenExceptionTemperature(filter) {
+  // wx不支持 body传参 只支持params
+  return downloadFileAndOpen({
+    url: 'export/abnormal/temperature',
+    method: 'get',
+    params: filter,
+    ext: '.xls'
+  })
+}
+
+// 未上报体温附件下载及打开
+export function DownloadAndOpenUnUploadTemperature(filter) {
+  // wx不支持 body传参 只支持params
+  return downloadFileAndOpen({
+    url: 'export/no-report',
+    method: 'get',
+    params: filter,
+    ext: '.xls'
   })
 }

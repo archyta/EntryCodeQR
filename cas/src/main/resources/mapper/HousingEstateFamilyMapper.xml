@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.HousingEstateFamilyMapper">
+
+	<sql id="housingEstateFamilyColumnsNotA">
+		id as id,
+		name as name,
+		type as type,
+		untitled as untitled,
+		untitled1 as untitled1,
+		untitled2 as untitled2
+	</sql>
+
+	<resultMap id="familyMemberMap" type="cn.lanyue.cas.entity.HousingEstateFamily">
+		<id column="id" property="id"/>
+		<result column="main_user_id" property="mainUserId"/>
+		<result column="estate_id" property="estateId"/>
+		<result column="building" property="building"/>
+		<result column="unit" property="unit"/>
+		<result column="room_number" property="roomNumber"/>
+		<collection property="familyMembers"  ofType="cn.lanyue.cas.entity.BaseUser">
+			<id column="baseUserId" property="id"/>
+			<result column="baseUserName" property="name"/>
+		</collection>
+	</resultMap>
+
+	<select id="findFamilyMembers" resultMap="familyMemberMap" parameterType="cn.lanyue.cas.entity.HousingEstateFamily">
+		SELECT
+			housing_estate_family.*,
+			base_user.id as baseUserId,
+			base_user.name as baseUserName
+		FROM
+			(
+				SELECT
+					*
+				FROM
+					housing_estate_family
+				WHERE
+					estate_id = #{estateId}
+					AND building = #{building}
+					AND unit = #{unit}
+					AND room_number = #{roomNumber}
+			) housing_estate_family
+		LEFT JOIN housing_estate_family_user ON housing_estate_family.id = housing_estate_family_user.family_id
+		LEFT JOIN base_user ON housing_estate_family_user.user_id = base_user.id
+	</select>
+
+</mapper>

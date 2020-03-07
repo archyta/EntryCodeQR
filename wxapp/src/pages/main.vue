@@ -36,8 +36,8 @@
         </div>
       </div>
     </div>
-    <div @tap.stop="showModalSecond = false" class="bg_modal" v-if="showModalSecond"> 
-      <div class="share_view" >
+    <div @tap.stop="showModalSecond = false" class="bg_modal" v-if="showModalSecond">
+      <div class="share_view">
         <div class="bg_img">
           <image class="image_text" src="{{'./../static/image/view_poster.png'}}" />
         </div>
@@ -52,7 +52,7 @@
           </button>-->
         </div>
       </div>
-  </div>
+    </div>
   </div>
 </template>
 
@@ -69,9 +69,17 @@ wepy.page({
   store,
   hooks: {},
   onShareAppMessage: function(res) {
-    return {
-      title: '出入福安 我为抗疫出份力！',
-      path: '/pages/main'
+    let agentId = wepy.wx.getStorageSync('agentId')
+    if (agentId) {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: `/pages/main?agentId=${agentId}`
+      }
+    } else {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: '/pages/main'
+      }
     }
   },
   data: {
@@ -80,7 +88,8 @@ wepy.page({
     contactName: '',
     error: '',
     errorShow: false,
-    showModalSecond: false
+    showModalSecond: false,
+    agentId: ''
   },
   computed: {
     ...getters(),
@@ -89,6 +98,11 @@ wepy.page({
     }
   },
   onLoad(options) {
+    // 如果存在代理信息
+    if (options.agentId) {
+      this.agentId = options.agentId
+      wepy.wx.setStorage('agentId', options.agentId)
+    }
     this.autoJump()
     this.loadPhoneData()
     eventHub.$on('login-success', (...args) => {
@@ -112,7 +126,7 @@ wepy.page({
     makeCall() {
       let self = this
       wx.makePhoneCall({
-        phoneNumber: '17323079376',
+        phoneNumber: this.contactPhone,
         complete() {
           self.showContact = false
         }
@@ -142,7 +156,7 @@ wepy.page({
       }
     },
     loadPhoneData() {
-      getContactPhone()
+      getContactPhone(this.store_housingEstateId, this.agentId)
         .then(res => {
           if (res.data.status === 200 && res.data.data) {
             this.contactPhone = res.data.data.mobilePhone
@@ -151,7 +165,7 @@ wepy.page({
             if (res.data.message) {
               this.error = res.data.message
             } else {
-              this.error = '服务器太累了，休息一会！'
+              this.error = '网络繁忙，请稍后再试'
             }
             this.errorShow = true
             this.contactPhone = ''
@@ -162,7 +176,7 @@ wepy.page({
           if (err.data.message) {
             this.error = err.data.message
           } else {
-            this.error = '服务器太累了，休息一会！'
+            this.error = '网络繁忙，请稍后再试'
           }
           this.errorShow = true
         })
@@ -243,7 +257,7 @@ page {
         line-height: 250rpx;
         border-radius: 50%;
         background: #1a55ff;
-        box-shadow: 0px 4px 8px 0px rgba(4, 6, 67, 0.13);
+        box-shadow: 0rpx 4rpx 8rpx 0rpx rgba(4, 6, 67, 0.13);
         &:active {
           background: #003eed;
         }
@@ -311,7 +325,7 @@ page {
     overflow: hidden;
     width: 650rpx;
     height: 1054rpx;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     .bg_img {
       width: 100%;
       height: 954rpx;
@@ -341,7 +355,7 @@ page {
           border: none;
         }
         &.first {
-          border-right: 1px solid #eee;
+          border-right: 1rpx solid #eee;
         }
       }
       .icon {
@@ -378,7 +392,7 @@ page {
     width: 100%;
     height: 274rpx;
     background: #ffffff;
-    box-shadow: 0px 0px 8px 0px rgba(3, 7, 23, 0.3);
+    box-shadow: 0rpx 0rpx 8rpx 0rpx rgba(3, 7, 23, 0.3);
     .add_desc {
       font-size: 32rpx;
       color: #222;
@@ -392,7 +406,7 @@ page {
       display: flex;
       justify-content: center;
       justify-items: center;
-      box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+      box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
       text-align: center;
       width: 640rpx;
       .text {

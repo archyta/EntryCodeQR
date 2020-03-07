@@ -5,5 +5,5 @@
 // run build 忽略当前地址 使用打包配置中的地址
 module.exports = {
   // 服务器地址
-  API_ROOT: '"http://myserver/cas/v4/"'
+  API_ROOT: '"https://myserver/cas/v4/"'
 }

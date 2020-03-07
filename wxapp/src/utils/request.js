@@ -1,5 +1,6 @@
 import wepy from '@wepy/core'
 import store from '@/store'
+import { uuid } from '@/utils'
 var url = URL
 const timeout = 100000
 const token = '123'
@@ -34,6 +35,7 @@ export default function request(data) {
   //   header:{}
   // }
   console.log(url + data.url + serialize(data.params))
+  console.log('request data:', data.data)
   return new Promise((resolve, reject) => {
     wepy.wx
       .request({
@@ -77,7 +79,15 @@ export default function request(data) {
               }
             })
             reject(res)
-          } else {
+          } if (res.data && res.data.status === 3008) {
+            wepy.wx.clearStorageSync()
+            store.dispatch('clearAllState')
+            store.dispatch('login', store.state.housingEstateId).then(m => {
+              wepy.wx.reLaunch('/pages/main')
+            })
+            reject(res)
+          }
+          else {
             resolve(res)
           }
         } else {
@@ -88,4 +98,35 @@ export default function request(data) {
         reject(err)
       })
   })
+}
+
+// 下载文件 并打开文档
+export function downloadFileAndOpen(data) {
+  return new Promise((resolve, reject) => {
+    let downloadUrl = url + data.url + serialize(data.params)
+    //下载文件，生成临时地址
+    let savePath = wx.env.USER_DATA_PATH + '/' + uuid() + data.ext
+    wx.downloadFile({
+      url: downloadUrl,
+      filePath: savePath,
+      success(downloadRes) {
+        wx.openDocument({
+          filePath: downloadRes.filePath,
+          success: function (openRes) {
+            console.log('打开文档成功')
+            resolve(openRes)
+          },
+          fail: function (openErr) {
+            console.log('打开文件失败', openErr)
+            reject(openErr)
+          }
+        })
+      },
+      fail(downloadErr) {
+        console.log('下载文件失败', downloadErr)
+        reject(downloadErr)
+      }
+    })
+  })
+
 }

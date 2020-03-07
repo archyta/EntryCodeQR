@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.BaseGroupMapper">
+
+	<sql id="baseGroupColumnsNotA">
+		id as id,
+		code as code,
+		name as name,
+		parent_id AS "parentId",
+		parent_ids as parentIds,
+		path as path,
+		group_id as groupId,
+		type as type,
+		group_type as groupType,
+		description as description,
+		data_scope as dataScope,
+		DEL_FLAG as delFlag,
+		CRT_BY as crtBy,
+		CRT_TIME as crtTime,
+		UPD_BY as updBy,
+		UPD_TIME as updTime
+	</sql>
+
+</mapper>

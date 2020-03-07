@@ -13,7 +13,7 @@
     "module-a": false,
     "./src/components/list": "./src/components/wepy-list.wpy"
   },
-  "author": "asces <623299266@163.com>",
+  "author": "lanyue <>",
   "license": "MIT",
   "dependencies": {
     "@wepy/core": "^2.0.0-alpha.9",

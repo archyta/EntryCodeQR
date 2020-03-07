@@ -3,63 +3,74 @@
   <div class="main">
     <image class="width-image" src="{{'./../static/image/tips.png'}}" />
     <div class="container">
-      <mp-toptips :msg="error" :delay="5000" @hide="onErrorHidden" type="error" :show="errorShow"></mp-toptips>
+      <mp-toptips :delay="5000" :msg="error" :show="errorShow" @hide="onErrorHidden" type="error"></mp-toptips>
 
       <mp-form id="form" models="{{form}}" ref="form" rules="{{rules}}">
-        <div class="main-form mgt-10">
-          <panel class="panel form-item">
-            <div style="font-weight: 600">须本人填写，代劳或非本人填写无效！</div>
-          </panel>
-          <panel :class="{'danger': err === 'name'}" class="panel form-item">
-            <div>
-              <span>
-                我的真实名字
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入姓名" type="text" v-model="form.name" />
-          </panel>
-          <panel :class="{'danger': err === 'mobilePhone'}" class="panel form-item">
-            <div>
-              <span>
-                我的手机号码
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input class="phone-number" placeholder="请输入手机号码" type="number" v-model="form.mobilePhone" />
-            <div class="right-button">
-              <button @tap.stop="sendCode">{{btnGetCodeText}}</button>
-            </div>
-          </panel>
-          <panel :class="{'danger': err === 'verifyCode'}" class="panel form-item">
-            <div>
-              <span>
-                手机验证码（4位）
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input class="reg_code" placeholder="请输入验证码" type="number" v-model="form.verifyCode" />
-          </panel>
-          <panel :class="{'danger': err === 'idNumber'}" class="panel form-item">
-            <div>
-              <span>身份证号码</span>
-            </div>
-            <input placeholder="请输入身份证号码" type="idcard" v-model="form.idNumber" />
-          </panel>
-          <panel class="panel form-item">
-            <span>我的防控区域</span>
-            <div class="right-text">
-              <span v-if="estateName">{{estateName}}</span>
-            </div>
-          </panel>
-          <panel class="panel form-item last">
-            <span>所在行政区域</span>
-            <div class="right-text">
-              <span v-if="streetOfficeName">{{streetOfficeName}}</span>
-            </div>
-          </panel>
+        <div class="my-form">
+          <div class="main-form">
+            <panel class="panel form-item">
+              <div style="font-weight: 600">须本人填写，代劳或非本人填写无效！</div>
+            </panel>
+            <panel :class="{'danger': err === 'name'}" class="panel form-item">
+              <div>
+                <span>
+                  我的真实名字
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入姓名" type="text" v-model="form.name" />
+            </panel>
+            <panel :class="{'danger': err === 'mobilePhone'}" class="panel form-item">
+              <div>
+                <span>
+                  我的手机号码
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input class="phone-number" placeholder="请输入手机号码" type="number" v-model="form.mobilePhone" />
+              <div class="right-button">
+                <button @tap.stop="sendCode">{{btnGetCodeText}}</button>
+              </div>
+            </panel>
+            <panel :class="{'danger': err === 'verifyCode'}" class="panel form-item">
+              <div>
+                <span>
+                  手机验证码（4位）
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input class="reg_code" placeholder="请输入验证码" type="number" v-model="form.verifyCode" />
+            </panel>
+            <!-- <panel :class="{'danger': err === 'idNumber'}" class="panel form-item">
+              <div>
+                <span>身份证号码</span>
+              </div>
+              <input placeholder="请输入身份证号码" type="idcard" v-model="form.idNumber" />
+            </panel>-->
+            <panel class="panel form-item">
+              <span>我的防控区域</span>
+              <div class="right-text">
+                <span v-if="estateName">{{estateName}}</span>
+              </div>
+            </panel>
+            <panel class="panel form-item last">
+              <span>所在行政区域</span>
+              <div class="right-text">
+                <span v-if="streetOfficeName">{{streetOfficeName}}</span>
+              </div>
+            </panel>
+          </div>
         </div>
       </mp-form>
+      <div class="rules-wrap" v-if="isRegist">
+        <checkbox-group @change="checkboxChange">
+          <checkbox color="#3a6eff" id="cehckbox_1" value="rules">
+            <label>已阅读并同意</label>
+          </checkbox>
+        </checkbox-group>
+
+        <span @tap="goRules" class="href-page">法律声明及隐私条款</span>
+      </div>
       <button @tap="commitBaseinfo" class="panel submit-btn" type="primary">
         <span class="text">提交信息</span>
       </button>
@@ -73,7 +84,7 @@ import eventHub from '../common/eventHub'
 import { mapState, mapActions } from '@wepy/x'
 import getters from '@/store/getters'
 import store from '../store'
-import { isPhoneNumber, validateIDCard } from '../utils/valid'
+import { isPhoneNumber } from '../utils/valid'
 import { addSecurity, getSecurityInfo, updateSecurity } from '@/api/guards'
 import { getCodeByPhone } from '@/api/common/index.js'
 import { compareVersion } from '@/utils/common.js'
@@ -89,6 +100,7 @@ wepy.page({
     isRegist: false,
     error: '',
     errorShow: false,
+    checkRules: '',
     err: '',
     estateName: '',
     streetOfficeName: '',
@@ -103,8 +115,8 @@ wepy.page({
       mobilePhone: '',
       housingEstateId: '',
       openId: '',
-      verifyCode: '',
-      idNumber: ''
+      verifyCode: ''
+      // idNumber: ''
     },
     rules: [
       {
@@ -136,17 +148,17 @@ wepy.page({
             }
           }
         }
-      },
-      {
-        name: 'idNumber',
-        rules: {
-          validator: function(rule, value, param, modeels) {
-            if (value && value.length !== 18 && value.length !== 15) {
-              return '身份证号格式不正确'
-            }
-          }
-        }
       }
+      // {
+      //   name: 'idNumber',
+      //   rules: {
+      //     validator: function(rule, value, param, modeels) {
+      //       if (value && value.length !== 18 && value.length !== 15) {
+      //         return '身份证号格式不正确'
+      //       }
+      //     }
+      //   }
+      // }
     ]
   },
   computed: {
@@ -188,7 +200,13 @@ wepy.page({
           this.errorShow = true
         } else {
           this.err = ''
+
           if (this.isRegist) {
+            if (!this.checkRules) {
+              this.error = '请同意隐私条款'
+              this.errorShow = true
+              return
+            }
             wx.showLoading({
               title: '加载中',
               mask: true
@@ -208,16 +226,16 @@ wepy.page({
                     if (err.data && err.data.message) {
                       this.error = err.data.message
                     } else {
-                      this.error = '好像服务处理点问题哟,请稍后再试！'
+                      this.error = '网络繁忙，请稍后再试'
                     }
-                    this.error = '好像服务处理点问题哟,请重新扫码重试！'
+                    this.error = '网络繁忙，请稍后再试'
                     wx.hideLoading()
                   })
               } else {
                 if (res.data && res.data.message) {
                   this.openError(res.data.message)
                 } else {
-                  this.openError('好像服务处理点问题哟,请稍后再试！')
+                  this.openError('网络繁忙，请稍后再试')
                 }
                 wx.hideLoading()
               }
@@ -254,6 +272,16 @@ wepy.page({
         }
       })
     },
+    checkboxChange(e) {
+      if (e.$wx && e.$wx.detail && e.$wx.detail.value && e.$wx.detail.value.length) {
+        this.checkRules = e.$wx.detail.value[0]
+      } else {
+        this.checkRules = ''
+      }
+    },
+    goRules() {
+      this.$navigate('/pages/rules')
+    },
     openError(msg) {
       this.error = msg
       this.errorShow = true
@@ -261,7 +289,7 @@ wepy.page({
     getDetails() {
       getSecurityInfo(this.store_userId, this.store_housingEstateId).then(res => {
         if (res && res.data && res.data.data && res.data.data.guardUser) {
-          this.form.idNumber = res.data.data.guardUser.idNumber
+          // this.form.idNumber = res.data.data.guardUser.idNumber
           this.form.mobilePhone = res.data.data.guardUser.mobilePhone
           this.form.name = res.data.data.guardUser.name
           this.form.id = res.data.data.guardUser.id
@@ -305,7 +333,7 @@ wepy.page({
                 if (res.data && res.data.message) {
                   this.error = res.data.message
                 } else {
-                  this.error = '好像服务处理点问题哟,请稍后再试！'
+                  this.error = '网络繁忙，请稍后再试'
                 }
                 this.errorShow = true
               }
@@ -315,7 +343,7 @@ wepy.page({
               if (err.data && err.data.message) {
                 this.error = err.data.message
               } else {
-                this.error = '好像服务处理点问题哟,请稍后再试！'
+                this.error = '网络繁忙，请稍后再试'
               }
               this.errorShow = true
             })
@@ -348,8 +376,13 @@ page {
   width: 750rpx;
   height: 132rpx;
 }
-.mgt-10 {
-  margin-top: 10rpx;
+.mgt-20 {
+  margin-top: 20rpx;
+}
+.my-form {
+  border-radius: 8rpx;
+  box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+  overflow: hidden;
 }
 .text-center {
   text-align: center;
@@ -418,7 +451,9 @@ page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    padding-left: 10rpx;
+    padding-right: 10rpx;
+    // box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     input {
       text-align: right;
       width: 350rpx;
@@ -494,7 +529,7 @@ page {
     display: flex;
     justify-content: center;
     justify-items: center;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     .text {
       margin-left: 10rpx;
       margin-top: 8rpx;
@@ -529,6 +564,22 @@ page {
   padding: 26rpx 24rpx !important;
   .weui-btn {
     background: #3a6eff;
+  }
+}
+.rules-wrap {
+  margin-top: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20rpx;
+  #cehckbox_1 {
+    transform: scale(0.8);
+    font-size: 40rpx;
+  }
+  .href-page {
+    color: #3a6eff;
+    font-size: 32rpx;
+    margin-top: 4rpx;
   }
 }
 </style>

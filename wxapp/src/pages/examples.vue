@@ -42,13 +42,18 @@ import { getBaseInfo, getOutInRecord } from '@/api/owner'
 import { compareVersion } from '@/utils/common.js'
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   onShareAppMessage: function(res) {
-    return {
-      title: '出入福安 我为抗疫出份力！',
-      path: '/pages/main'
+    let agentId = wepy.wx.getStorageSync('agentId')
+    if (agentId) {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: `/pages/main?agentId=${agentId}`
+      }
+    } else {
+      return {
+        title: '出入福安 我为抗疫出份力！',
+        path: '/pages/main'
+      }
     }
   },
   hooks: {},
@@ -107,10 +112,7 @@ page {
     flex-direction: column;
     width: 100vw;
     min-height: 100vh;
-    // background-color: #003EED;
     align-items: center;
-    // background-image:  url('./../static/image/register.png');
-
     image {
       width: 750rpx;
       height: 1341rpx;
@@ -122,7 +124,7 @@ page {
         overflow: hidden;
         width: 650rpx;
         height: 1054rpx;
-        box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+        box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
         .bg_img {
           width: 100%;
           height: 954rpx;
@@ -152,7 +154,7 @@ page {
               border: none;
             }
             &.first {
-              border-right: 1px solid #eee;
+              border-right: 1rpx solid #eee;
             }
           }
           .icon {
@@ -189,7 +191,7 @@ page {
         width: 100%;
         height: 274rpx;
         background: #ffffff;
-        box-shadow: 0px 0px 8px 0px rgba(3, 7, 23, 0.3);
+        box-shadow: 0rpx 0rpx 8rpx 0rpx rgba(3, 7, 23, 0.3);
         .add_desc {
           font-size: 32rpx;
           color: #222;
@@ -203,7 +205,7 @@ page {
           display: flex;
           justify-content: center;
           justify-items: center;
-          box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+          box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
           text-align: center;
           width: 640rpx;
           .text {

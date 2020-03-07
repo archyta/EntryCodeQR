@@ -6,110 +6,129 @@
       <mp-toptips :delay="5000" :msg="error" :show="errorShow" @hide="onErrorHidden" type="error"></mp-toptips>
 
       <mp-form id="form" models="{{form}}" ref="form" rules="{{rules}}">
-        <div class="main-form mgt-10">
-          <panel class="panel form-item">
-            <div style="font-weight: 600">填写小区基本信息</div>
-          </panel>
-          <panel :class="{'danger': err === 'name'}" class="panel form-item">
-            <div>
-              <span>
-                小区名称
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入小区名称" type="text" v-model="form.name" />
-          </panel>
-          <panel :class="{'danger': err === 'address'}" class="panel form-item">
-            <div>
-              <span>
-                所在区域
-                <span class="required">*</span>
-              </span>
-            </div>
-            <picker bindchange="bindRegionChange" custom-item="{{customItem}}" mode="region" value="{{address}}">
-              <view class="picker">
-                {{getFullAddress}}
-                <image src="{{'./../static/icon/arror-right.png'}}" style="width: 30rpx;height: 30rpx;margin-left:2rpx;" />
-              </view>
-            </picker>
-          </panel>
-          <panel :class="{'danger': err === 'streetOfficeName'}" class="panel form-item">
-            <div>
-              <span>
-                所在街道
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入所在街道" type="text" v-model="form.streetOfficeName" />
-          </panel>
-          <panel :class="{'danger': err === 'responsible'}" class="panel form-item">
-            <div>
-              <span>
-                管理员姓名
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入管理员姓名" type="text" v-model="form.responsible" />
-          </panel>
-          <panel :class="{'danger': err === 'responsibleMobilePhone'}" class="panel form-item right-con">
-            <div>
-              <span>
-                手机号
-                <span class="required">*</span>
-              </span>
-            </div>
-            <input placeholder="请输入手机号码" type="number" v-model="form.responsibleMobilePhone" />
-            <div class="right-button">
-              <button :class="{'disabled-btn': isResting}" @tap="getCode" style="width: 200rpx;">{{isResting? restSecond + 's':'获取验证码'}}</button>
-            </div>
-          </panel>
-          <panel :class="{'danger': err === 'verifyCode'}" class="panel form-item right-con">
-            <div>
-              <span>手机验证码（4位）</span>
-            </div>
-            <input :disabled="disabled" placeholder="请输入验证码" type="number" v-model="form.verifyCode" />
-          </panel>
-          <panel class="panel form-item right-con">
-            <div>
-              <span>进出门限额</span>
-            </div>
-            <picker @change="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" mode="multiSelector" range="{{multiArray}}" range-key="label" value="{{multiIndex}}">
-              <view class="picker">限{{multiArray[0][multiIndex[0]].label}} {{multiArray[1][multiIndex[1]].label}} {{multiArray[2][multiIndex[2]].label}}</view>
-            </picker>
-          </panel>
-          <panel class="panel form-item">
-            <div :class="{ danger: err === 'riskTemperature' }" class="inline-form-item" style="position: relative">
-              <span class="nowrap">
-                警戒体温
-                <span class="required">*</span>
-              </span>
-              <input :disabled="disabled" placeholder="请输入" style="padding-right:10rpx;" type="digit" v-model="form.riskTemperature" />
-            </div>
+        <div class="my-form mgt-20">
+          <div class="main-form">
+            <panel class="panel form-item">
+              <div style="font-weight: 600">填写小区基本信息</div>
+            </panel>
+            <panel :class="{'danger': err === 'name'}" class="panel form-item">
+              <div>
+                <span>
+                  小区名称
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入小区名称" type="text" v-model="form.name" />
+            </panel>
+            <panel :class="{'danger': err === 'address'}" class="panel form-item">
+              <div>
+                <span>
+                  所在区域
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <picker bindchange="bindRegionChange" custom-item="{{customItem}}" mode="region" value="{{address}}">
+                <view class="picker">
+                  {{getFullAddress}}
+                  <image src="{{'./../static/icon/arror-right.png'}}" style="width: 30rpx;height: 30rpx;margin-left:2rpx;" />
+                </view>
+              </picker>
+            </panel>
+            <panel :class="{'danger': err === 'streetOfficeName'}" class="panel form-item">
+              <div>
+                <span>
+                  所在街道
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入所在街道" type="text" v-model="form.streetOfficeName" />
+            </panel>
+            <panel :class="{'danger': err === 'responsible'}" class="panel form-item">
+              <div>
+                <span>
+                  管理员姓名
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入管理员姓名" type="text" v-model="form.responsible" />
+            </panel>
+            <panel :class="{'danger': err === 'responsibleMobilePhone'}" class="panel form-item right-con">
+              <div>
+                <span>
+                  手机号
+                  <span class="required">*</span>
+                </span>
+              </div>
+              <input placeholder="请输入手机号码" type="number" v-model="form.responsibleMobilePhone" />
+              <div class="right-button">
+                <button :class="{'disabled-btn': isResting}" @tap="getCode" style="width: 200rpx;">{{isResting? restSecond + 's':'获取验证码'}}</button>
+              </div>
+            </panel>
+            <panel :class="{'danger': err === 'verifyCode'}" class="panel form-item right-con">
+              <div>
+                <span>手机验证码（4位）</span>
+              </div>
+              <input :disabled="disabled" placeholder="请输入验证码" type="number" v-model="form.verifyCode" />
+            </panel>
+            <panel class="panel form-item right-con">
+              <div>
+                <span>进出门限额</span>
+              </div>
+              <picker @change="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" mode="multiSelector" range="{{multiArray}}" range-key="label" value="{{multiIndex}}">
+                <view class="picker">限{{multiArray[0][multiIndex[0]].label}} {{multiArray[1][multiIndex[1]].label}} {{multiArray[2][multiIndex[2]].label}}</view>
+              </picker>
+            </panel>
+            <panel class="panel form-item right-con">
+              <div>
+                <span>门岗放行模式</span>
+              </div>
+              <picker :range="allGuardControlPatterns" @change="onAllGuardControlPatternsChange" mode="selector" range-key="name" v-model="guardControlPatternIndex">
+                <view class="picker">{{allGuardControlPatterns[guardControlPatternIndex].name}}</view>
+              </picker>
+            </panel>
+            <panel class="panel form-item">
+              <div :class="{ danger: err === 'riskTemperature' }" class="inline-form-item" style="position: relative">
+                <span class="nowrap">
+                  警戒体温
+                  <span class="required">*</span>
+                </span>
+                <input :disabled="disabled" placeholder="请输入" style="padding-right:10rpx;" type="digit" v-model="form.riskTemperature" />
+              </div>
 
-            <div :class="{ danger: err === 'abnormalTemperature' }" class="inline-form-item">
-              <span class="nowrap">
-                异常体温
-                <span class="required">*</span>
-              </span>
-              <input :disabled="disabled" placeholder="请输入" type="digit" v-model="form.abnormalTemperature" />
+              <div :class="{ danger: err === 'abnormalTemperature' }" class="inline-form-item">
+                <span class="nowrap">
+                  异常体温
+                  <span class="required">*</span>
+                </span>
+                <input :disabled="disabled" placeholder="请输入" type="digit" v-model="form.abnormalTemperature" />
+              </div>
+            </panel>
+            <panel class="panel form-item last photo_panel">
+              <span>小区门头照</span>
+              <div class="right-button">
+                <button @tap="uploadImage">上传照片</button>
+              </div>
+            </panel>
+            <div class="addition-img">
+              <div :style="{backgroundImage: 'url(' + getImageFullPath + ')'}" class="image" v-if="form.headPhotoPath"></div>
+              <!-- <image :src="getImageFullPath" v-if="form.headPhotoPath" /> -->
             </div>
-          </panel>
-          <panel class="panel form-item last photo_panel">
-            <span>小区门头照</span>
-            <div class="right-button">
-              <button @tap="uploadImage">上传照片</button>
-            </div>
-          </panel>
-          <div class="addition-img">
-            <div :style="{backgroundImage: 'url(' + getImageFullPath + ')'}" class="image" v-if="form.headPhotoPath"></div>
-            <!-- <image :src="getImageFullPath" v-if="form.headPhotoPath" /> -->
           </div>
         </div>
       </mp-form>
-      <button @tap="commitEstate" class="panel next-step" type>
-        <span class="text">下一步（1/3）</span>
-      </button>
+      <div class="rules-wrap">
+        <checkbox-group @change="checkboxChange">
+          <checkbox color="#3a6eff" id="cehckbox_1" value="rules">
+            <label>已阅读并同意</label>
+          </checkbox>
+        </checkbox-group>
+
+        <span @tap="goRules" class="href-page">法律声明及隐私条款</span>
+      </div>
     </div>
+    <button @tap="commitEstate" class="next-step" type>
+      <span class="text">下一步（1/3）</span>
+    </button>
   </div>
 </template>
 
@@ -141,11 +160,18 @@ wepy.page({
     restSecond: 0,
     err: '',
     estateName: '',
+    checkRules: '',
     streetOfficeName: '',
     showOneButtonDialog: false,
     buttons: [],
     clickBack: '',
     customItem: '全部',
+    allGuardControlPatterns: [
+      { name: '保安扫码确认后放行', value: '0' },
+      { name: '住户扫码登记后放行', value: '1' }
+    ],
+
+    guardControlPatternIndex: 0,
     form: {
       name: '',
       responsibleMobilePhone: '',
@@ -155,7 +181,9 @@ wepy.page({
       responsible: '',
       headPhotoPath: '',
       verifyCode: '',
-      streetOfficeName: ''
+      streetOfficeName: '',
+      guardControlPattern: '0',
+      agentId: ''
     },
     address: ['四川省', '成都市', '锦江区'],
     multiArray: pickerData,
@@ -199,10 +227,11 @@ wepy.page({
           { required: true, message: '请输入体温' },
           {
             validator: function(rule, value, param, modeels) {
-              if (value >= 50 || value < 25) {
-                return '温度范围异常，请输入25-50之前的温度值'
+              if (value > 45 || value < 30) {
+                return '温度范围异常，请输入30-45之前的温度值'
               }
-              if (value && !(/^\d+(\.\d+)?$/.test(value))) {
+              let m = /^\d+(\.\d+)?$/.test(value)
+              if (value && !m) {
                 return '温度只能填入数字'
               }
             }
@@ -215,10 +244,11 @@ wepy.page({
           { required: true, message: '请输入体温' },
           {
             validator: function(rule, value, param, modeels) {
-              if (value >= 50 || value < 25) {
-                return '温度范围异常，请输入25-50之前的温度值'
+              if (value > 45 || value < 30) {
+                return '温度范围异常，请输入30-45之前的温度值'
               }
-              if (value && !(/^\d+(\.\d+)?$/.test(value))) {
+              let m = /^\d+(\.\d+)?$/.test(value)
+              if (value && !m) {
                 return '温度只能填入数字'
               }
             }
@@ -256,6 +286,7 @@ wepy.page({
   },
   onLoad(option) {
     this.form.openId = this.store_openId
+    this.form.agentId = wepy.wx.getStorageSync('agentId')
   },
   onShow() {
     // 基础库2.9.5才支持
@@ -273,6 +304,11 @@ wepy.page({
         } else {
           if (this.form.riskTemperature >= this.form.abnormalTemperature) {
             this.error = '警戒体温须小于异常体温'
+            this.errorShow = true
+            return
+          }
+          if (!this.checkRules) {
+            this.error = '请同意隐私条款'
             this.errorShow = true
             return
           }
@@ -308,7 +344,7 @@ wepy.page({
               if (res.data && res.data.message) {
                 this.openError(res.data.message)
               } else {
-                this.openError('服务器不知道去哪了,正在紧急查找中...')
+                this.openError('网络繁忙，请稍后再试')
               }
               wx.hideLoading()
             }
@@ -317,11 +353,27 @@ wepy.page({
       })
       // this.$navigate('/pages/manageStep2')
     },
+    checkboxChange(e) {
+      if (e.$wx && e.$wx.detail && e.$wx.detail.value && e.$wx.detail.value.length) {
+        this.checkRules = e.$wx.detail.value[0]
+      } else {
+        this.checkRules = ''
+      }
+    },
+    goRules() {
+      this.$navigate('/pages/rules')
+    },
     bindRegionChange: function(e) {
       this.address = e.$wx.detail.value
     },
     bindMultiPickerChange(data) {
       this.multiIndex = [...data.$wx.detail.value]
+    },
+    onAllGuardControlPatternsChange(e) {
+      if (e.$wx.detail) {
+        let m = e.$wx.detail.value
+        this.form.guardControlPattern = this.allGuardControlPatterns[m].value
+      }
     },
     uploadImage() {
       wx.chooseImage({
@@ -430,8 +482,14 @@ page {
   width: 750rpx;
   height: 132rpx;
 }
-.mgt-10 {
-  margin-top: 10rpx;
+.mgt-20 {
+  margin-top: 20rpx;
+}
+.my-form {
+  border-radius: 8rpx;
+  box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+  overflow: hidden;
+  margin-bottom: 10rpx;
 }
 .text-center {
   text-align: center;
@@ -503,7 +561,9 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
+    padding-left: 10rpx;
+    padding-right: 10rpx;
+    // box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
     // &.photo_panel{
     //   height: 300rpx;
     // }
@@ -581,25 +641,7 @@ button:active {
     font-size: 26rpx;
     color: #222222;
   }
-  .next-step {
-    // margin-top: 30rpx;
-    height: 100rpx;
-    // background-color: #3a6eff;
-    width: 100%;
-    width: 710rpx;
-    font-size: 32rpx;
-    position: fixed;
-    left: 22rpx;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    justify-items: center;
-    box-shadow: 0px 4px 6px 0px rgba(57, 57, 57, 0.05);
-    .text {
-      margin-left: 10rpx;
-      margin-top: 8rpx;
-    }
-  }
+
   .btn-wrap {
     display: flex;
     flex-flow: row wrap;
@@ -621,6 +663,27 @@ button:active {
     }
   }
 }
+.next-step {
+  // margin-top: 30rpx;
+  height: 100rpx;
+  // background-color: #3a6eff;
+  width: 100%;
+  width: 100%;
+  border-radius: 0;
+  font-size: 32rpx;
+  position: fixed;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-top: 1px solid #d8d8d8;
+  z-index: 100;
+  // box-shadow: 0rpx 4rpx 6rpx 0rpx rgba(57, 57, 57, 0.05);
+}
+.next-step::after {
+  border: none;
+}
 .weui-half-screen-dialog__hd__side {
   display: none;
   // content: ' 确定'
@@ -629,6 +692,22 @@ button:active {
   padding: 26rpx 24rpx !important;
   .weui-btn {
     background: #3a6eff;
+  }
+}
+.rules-wrap {
+  margin-top: 40rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20rpx;
+  #cehckbox_1 {
+    transform: scale(0.8);
+    font-size: 40rpx;
+  }
+  .href-page {
+    color: #3a6eff;
+    font-size: 32rpx;
+    margin-top: 4rpx;
   }
 }
 </style>

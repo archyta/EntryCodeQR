@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanyue.cas.mapper.BaseUserMapper">
+
+	<sql id="baseUserColumnsNotA">
+		id as id,
+		name as name,
+		open_id as openId,
+		mobile_phone as mobilePhone,
+		id_number as idNumber,
+		DEL_FLAG as delFlag,
+		CRT_BY as crtBy,
+		CRT_TIME as crtTime,
+		UPD_BY as updBy,
+		UPD_TIME as updTime
+	</sql>
+
+
+	<select id="findGroup" resultType="cn.lanyue.cas.entity.BaseGroup">
+		SELECT
+			base_group.*,
+		    base_user_group.attr1 as estateId
+		FROM
+			(
+				SELECT
+					id
+				FROM
+					base_user
+				WHERE
+					id = #{userId}
+			) base_user
+		LEFT JOIN base_user_group ON base_user.id = base_user_group.user_id
+		LEFT JOIN base_group on base_user_group.group_id= base_group.id
+		<where>
+			<if test="estateId !=null and estateId !='' ">
+				base_user_group.attr1 = #{estateId}
+			</if>
+		</where>
+		<!-- <foreach collection="estateIds" item="estateId" open="(" close=")" separator=",">
+			 #{estateId}
+		</foreach> -->
+	</select>
+
+
+	<select id="findFamilyMembers" resultType="cn.lanyue.cas.entity.BaseUser">
+		SELECT
+			base_user.*
+		FROM
+			housing_estate_family_user
+		LEFT JOIN base_user ON housing_estate_family_user.user_id = base_user.id
+		where
+			housing_estate_family_user.family_id = #{familyId}
+	</select>
+
+
+	<resultMap id="estateMap" type="cn.lanyue.cas.entity.HousingEstate">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="street_office_id" property="streetOfficeId"/>
+		<collection property="families" ofType="cn.lanyue.cas.entity.HousingEstateFamily">
+			<id column="familyId" property="id"/>
+			<id column="updTime" property="updTime"/>
+		</collection>
+	</resultMap>
+
+	<select id="findFamilys" resultMap="estateMap">
+		SELECT
+			housing_estate.*,
+			housing_estate_family.id as familyId,
+			housing_estate_family.upd_time as updTime
+		FROM
+			housing_estate_family_user
+		LEFT JOIN housing_estate_family ON housing_estate_family_user.family_id = housing_estate_family.id
+		LEFT JOIN housing_estate ON housing_estate.id = housing_estate_family.estate_id
+		where
+		housing_estate_family_user.user_id = #{userId}
+		and
+		housing_estate.id = #{estateId}
+	</select>
+
+
+	<select id="findEstates" resultMap="estateMap">
+		SELECT
+			housing_estate.*
+		FROM
+			housing_estate
+		LEFT JOIN base_user_group ON base_user_group.attr1 = housing_estate.id
+		WHERE
+			base_user_group.user_id = #{userId}
+			and housing_estate.id = #{estateId}
+	</select>
+
+
+	<select id="findFamilyMainUser" resultType="cn.lanyue.cas.entity.BaseUser">
+		select
+		base_user.*
+		from base_user left join housing_estate_family on base_user.id = housing_estate_family.main_user_id
+		where
+		housing_estate_family.id = #{familyId}
+	</select>
+
+	<resultMap id="userInfoMap" type="cn.lanyue.cas.vo.request.UserBaseInfoVo">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="idNumber" column="id_number"/>
+		<result property="mobilePhone" column="mobile_phone"/>
+		<result property="building" column="building"/>
+		<result property="unit" column="unit"/>
+		<result property="roomNumber" column="room_number"/>
+		<collection property="cars" ofType="cn.lanyue.cas.entity.Car">
+			<id property="id" column="car_id"/>
+			<result property="plateNumber" column="plate_number"/>
+		</collection>
+	</resultMap>
+
+	<select id="findUserBaseInfo" parameterType="cn.lanyue.cas.vo.request.BaseUserInfoParam" resultMap="userInfoMap">
+		SELECT
+			base_user.id,
+			base_user.name,
+			base_user.id_number,
+			base_user.mobile_phone,
+			housing_estate_family.building,
+			housing_estate_family.unit,
+			housing_estate_family.room_number,
+			car.id as car_id,
+			car.plate_number
+		FROM
+			base_user
+		LEFT JOIN housing_estate_family_user ON base_user.id = housing_estate_family_user.user_id
+		LEFT JOIN housing_estate_family ON housing_estate_family_user.family_id = housing_estate_family.id
+		LEFT JOIN car ON car.user_id = base_user.id AND car.estate_id = housing_estate_family.estate_id
+		WHERE
+		housing_estate_family.id = #{familyId}
+		AND
+		housing_estate_family.estate_id = #{estateId}
+		AND
+		base_user.id = #{userId}
+	</select>
+</mapper>

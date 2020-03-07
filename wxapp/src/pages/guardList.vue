@@ -47,9 +47,6 @@ import { compareVersion } from '@/utils/common.js'
 
 wepy.page({
   store,
-  config: {
-    navigationBarTitleText: 'W11123'
-  },
   hooks: {},
   data: {
     userName: '',
@@ -118,7 +115,11 @@ wepy.page({
           })
           .catch(err => {
             this.actionshow = false
-            this.openError(err.data.message || '服务器异常，请稍后再试')
+            if (err.data && err.data.message) {
+              this.openError(err.data.message || '服务器异常，请稍后再试')
+            } else {
+              this.openError('服务器异常，请稍后再试')
+            }
           })
       } else {
         this.showfirm = true
@@ -174,7 +175,7 @@ wepy.page({
           }
         })
         .catch(e => {
-          this.openError('服务器不知道去哪了,正在紧急查找中...')
+          this.openError('网络繁忙，请稍后再试')
           wx.hideLoading()
         })
     },
@@ -188,7 +189,7 @@ wepy.page({
           }
         })
         .catch(e => {
-          this.openError('服务器不知道去哪了,正在紧急查找中...')
+          this.openError('网络繁忙，请稍后再试')
         })
     },
     openError(msg) {
@@ -294,6 +295,9 @@ page {
       border-radius: 0;
       border-bottom: 1rpx solid #ccc;
     }
+    &.last {
+      border-radius: 0 0 8rpx 8rpx;
+    }
     &.danger {
       border-bottom: 1rpx solid #f00;
     }
@@ -305,6 +309,7 @@ page {
     color: #666;
     text-align: center;
     background: #fff;
+    border-radius: 0 0 8rpx 8rpx;
   }
   .bg-modal {
     position: fixed;
